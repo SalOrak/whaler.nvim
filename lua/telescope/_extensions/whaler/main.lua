@@ -21,12 +21,12 @@ M.get_subdir = function(dir)
     dir = homedir .. dir
 
     if dir == nil then
-        print('Directory is nil')
+        error('Directory is nil')
         return
     end
 
     if _fn.isdirectory(dir) == 0 then
-        print('Directory '.. dir.. ' is not a real directory')
+        error('Directory '.. dir.. ' is not a real directory')
         return
     end
 
@@ -47,7 +47,7 @@ end
 M.get_entries = function(tbl_dir)
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
-        print("Table must contain valid directories")
+        error("Table must contain valid directories")
         return
     end
 
@@ -64,9 +64,9 @@ M.get_entries = function(tbl_dir)
     return tbl_entries
 end
 
-M.dirs = function(dirs)
-    local dirs = directories or { ".config", "work", "personal"}
-    local subdirs = M.get_entries(dirs) or {}
+M.dirs = function()
+    local d = directories or { ".config", "work", "personal"}
+    local subdirs = M.get_entries(d) or {}
     return subdirs 
 end
 
