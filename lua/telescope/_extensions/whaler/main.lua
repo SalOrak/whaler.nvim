@@ -12,7 +12,7 @@ local _fn = vim.fn
 local M = {}
 
 -- Whaler variables (on setup)
-local dirs
+local directories
 
 -- Whaler functions 
 
@@ -65,14 +65,14 @@ M.get_entries = function(tbl_dir)
 end
 
 M.dirs = function(dirs)
-    local dirs = dirs or { ".config", "work", "personal"}
+    local dirs = directories or { ".config", "work", "personal"}
     local subdirs = M.get_entries(dirs) or {}
     return subdirs 
 end
 
 M.whaler = function(opts)
     opts = opts or {}
-    local dirs = M.dirs(dirs) or {}
+    local dirs = M.dirs(directories) or {}
     _pickers.new(opts, {
         prompt_title = "Fuzzy Find directories",
         finder = _finders.new_table{
@@ -96,7 +96,7 @@ M.whaler = function(opts)
 end
 
 M.setup = function(setup_config)
-    M.dirs = setup_config.dirs or { "work", "personal", ".config" }
+    directories = setup_config.dirs or { "work", "personal", ".config" }
 end
 
 return M
