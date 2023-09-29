@@ -72,7 +72,7 @@ end
 
 M.whaler = function(opts)
     opts = opts or {}
-    local dirs = M.dirs(directories) or {}
+    local dirs = M.dirs() or {}
     _pickers.new(opts, {
         prompt_title = "Fuzzy Find directories",
         finder = _finders.new_table{
