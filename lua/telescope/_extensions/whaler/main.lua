@@ -5,39 +5,37 @@ local _actions = require("telescope.actions")
 local _action_state = require("telescope.actions.state")
 local _conf = require("telescope.config").values
 
+-- Logging
+local log = require("plenary.log")
+
 -- Vim modules
 local _fn = vim.fn
+
+-- Whaler modules
+local _utils = require("telescope._extensions.whaler.utils")
 
 -- Whaler
 local M = {}
 
 -- Whaler variables (on setup)
-local directories
-
--- Whaler functions 
+local abs_dirs -- Absolute directories where the path is absolute
+local home_dirs -- Path is from $HOME
 
 M.get_subdir = function(dir)
-    local homedir = vim.loop.os_homedir() .. "/"
-    dir = homedir .. dir
-
-    if dir == nil then
-        error('Directory is nil')
-        return
-    end
+    -- Get all subdirectories from a directory
+    dir = dir or {}
 
     if _fn.isdirectory(dir) == 0 then
-        error('Directory '.. dir.. ' is not a real directory')
-        return
-    end
+        log.trace("Directory "..dir.. " is not a valid directory")
+        return {} end
 
     local tbl_dir = {}
-    local idx = 1
 
-    for k,v in ipairs(_fn.readdir(dir)) do
+    for _,v in pairs(_fn.readdir(dir)) do
         local entry = dir .. "/" .. v
         if _fn.isdirectory(entry) == 1 then
-            tbl_dir[idx] = entry
-            idx = idx + 1
+            local parsed_dir = _utils.parse_directory(entry)
+            tbl_dir[parsed_dir] = parsed_dir
         end
     end
 
@@ -45,19 +43,19 @@ M.get_subdir = function(dir)
 end
 
 M.get_entries = function(tbl_dir)
+
+    -- Get all subdirectories from a table of valid directories
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
-        error("Table must contain valid directories")
+        log.error("Table must contain valid directories")
         return
     end
 
     local tbl_entries = {}
-    local idx = 1 -- Tables start at 1
     for _,v1 in ipairs(tbl_dir) do
-        local subdir = M.get_subdir(v1)
-        for _,v2 in ipairs(subdir) do
-            tbl_entries[idx] = v2
-            idx = idx + 1
+        local subdirs = M.get_subdir(v1)
+        for k,v in pairs(subdirs) do
+            tbl_entries[k] = v
         end
     end
 
@@ -65,9 +63,20 @@ M.get_entries = function(tbl_dir)
 end
 
 M.dirs = function()
-    local d = directories or { ".config", "work", "personal"}
-    local subdirs = M.get_entries(d) or {}
-    return subdirs 
+    local homedir = vim.loop.os_homedir() .. "/"
+
+    local hd = home_dirs or {}
+
+    for k,v in pairs(hd) do 
+        hd[k] = homedir .. v
+    end
+
+    local ad = abs_dirs or {}
+    local shd = M.get_entries(hd) or {}
+    local ahd = M.get_entries(ad) or {}
+    local subdirs = _utils.merge_tables_by_key(shd,ahd) or {}
+
+    return subdirs
 end
 
 M.whaler = function(opts)
@@ -76,9 +85,16 @@ M.whaler = function(opts)
     _pickers.new(opts, {
         prompt_title = "Fuzzy Find directories",
         finder = _finders.new_table{
-            results = dirs
+            results = _fn.values(dirs)
         },
-        sorter = _conf.generic_sorter(opts),
+        entry_maker = function(entry)
+            return {
+                value = entry,
+                display = entry,
+                ordinal = entry,
+            }
+        end,
+        sorter = _conf.file_sorter(opts),
         attach_mappings = function(prompt_bufnr, map)
             _actions.select_default:replace(function()
                 _actions.close(prompt_bufnr)
@@ -96,7 +112,14 @@ M.whaler = function(opts)
 end
 
 M.setup = function(setup_config)
-    directories = setup_config.dirs or { "work", "personal", ".config" }
+    abs_dirs = setup_config.abs_dirs or { "/"}
+    home_dirs = setup_config.home_dirs or { "Desktop", "Downloads"}
+end
+
+P = function(data)
+    local i = vim.inspect(data)
+    print(i)
+    return i 
 end
 
 return M
