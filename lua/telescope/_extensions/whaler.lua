@@ -8,6 +8,8 @@ local whaler = require('telescope._extensions.whaler.main')
 
 return telescope.register_extension {
     setup = whaler.setup,
-    exports = { whaler = whaler}
+    exports = { 
+        whaler =  whaler.whaler,
+    }
 }
 

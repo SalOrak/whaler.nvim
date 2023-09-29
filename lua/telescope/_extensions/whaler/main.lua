@@ -2,6 +2,7 @@
 local _pickers = require("telescope.pickers")
 local _finders = require("telescope.finders")
 local _actions = require("telescope.actions")
+local _themes = require("telescope.themes")
 local _action_state = require("telescope.actions.state")
 local _conf = require("telescope.config").values
 
@@ -18,16 +19,21 @@ local _utils = require("telescope._extensions.whaler.utils")
 local M = {}
 
 -- Whaler variables (on setup)
-local abs_dirs -- Absolute directories where the path is absolute
-local home_dirs -- Path is from $HOME
+local directories -- Absolute directories where the path is absolute
+
+-- Telescope variables
+local theme_opts  = {} -- Theme Options table
+
+-- Whaler Main functions ---
 
 M.get_subdir = function(dir)
     -- Get all subdirectories from a directory
     dir = dir or {}
 
     if _fn.isdirectory(dir) == 0 then
-        log.trace("Directory "..dir.. " is not a valid directory")
-        return {} end
+        log.warn("Directory "..dir.. " is not a valid directory")
+        return {} 
+    end
 
     local tbl_dir = {}
 
@@ -63,48 +69,44 @@ M.get_entries = function(tbl_dir)
 end
 
 M.dirs = function()
-    local homedir = vim.loop.os_homedir() .. "/"
 
-    local hd = home_dirs or {}
+    local hd = directories or {}
 
-    for k,v in pairs(hd) do 
-        hd[k] = homedir .. v
-    end
-
-    local ad = abs_dirs or {}
     local shd = M.get_entries(hd) or {}
-    local ahd = M.get_entries(ad) or {}
-    local subdirs = _utils.merge_tables_by_key(shd,ahd) or {}
+
+    local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
 
     return subdirs
 end
 
 M.whaler = function(opts)
-    opts = opts or {}
-    local dirs = M.dirs() or {}
+    opts = vim.tbl_deep_extend("force", theme_opts, opts or {})
+
+    local dirs = M.dirs() or {root = "/"}
+    if next(dirs) ~= nil then
+        dirs = _fn.values(dirs)
+    end
+
+    local dd = "/Users/hector-nuwe"
     _pickers.new(opts, {
-        prompt_title = "Fuzzy Find directories",
+        prompt_title = "Whaler",
         finder = _finders.new_table{
-            results = _fn.values(dirs)
+            results = dirs
         },
-        entry_maker = function(entry)
-            return {
-                value = entry,
-                display = entry,
-                ordinal = entry,
-            }
-        end,
-        sorter = _conf.file_sorter(opts),
+        sorter = _conf.generic_sorter(opts),
+        previewer = _conf.file_previewer(opts),
         attach_mappings = function(prompt_bufnr, map)
             _actions.select_default:replace(function()
                 _actions.close(prompt_bufnr)
                 local selection = _action_state.get_selected_entry()
-                -- Change current directory
-                vim.api.nvim_set_current_dir(selection[1])
-                -- Command to open netrw
-                local cmd = vim.api.nvim_parse_cmd("Explore" .. selection[1],{})
-                -- Execute command
-                vim.api.nvim_cmd(cmd, {})
+                if selection then
+                    -- Change current directory
+                    vim.api.nvim_set_current_dir(selection[1])
+                    -- Command to open netrw
+                    local cmd = vim.api.nvim_parse_cmd("Explore" .. selection[1],{})
+                    -- Execute command
+                    vim.api.nvim_cmd(cmd, {})
+                end
             end)
             return true
         end
@@ -112,14 +114,19 @@ M.whaler = function(opts)
 end
 
 M.setup = function(setup_config)
-    abs_dirs = setup_config.abs_dirs or { "/"}
-    home_dirs = setup_config.home_dirs or { "Desktop", "Downloads"}
+
+    if setup_config.theme and setup_config.theme ~= "" then
+        theme_opts = _themes["get_" .. setup_config.theme]()
+    end
+
+    directories = setup_config.directories or {}
 end
 
-P = function(data)
-    local i = vim.inspect(data)
-    print(i)
-    return i 
-end
 
 return M
+
+--[
+-- Current entries interface
+-- ["/Users/hector-nuwe/personal/whaler"] 
+-- { "/Users/hector-nuwe/personal/whaler"}
+--]
