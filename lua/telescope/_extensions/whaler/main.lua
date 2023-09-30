@@ -26,7 +26,19 @@ local file_explorer -- Which file explorer to open (netrw, nvim-tree, nerdtree, 
 local file_explorer_config -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle }  -- Does NOT accept netrw
 
 -- Telescope variables
-local theme_opts  = {} -- Theme Options table
+local theme_opts  = { -- Theme Options table
+    results_title = false,
+    layout_strategy = "center",
+    previewer = false,
+    layout_config = {
+        --preview_cutoff = 1000,
+        height =  0.2,
+        width = 0.4
+    },
+    sorting_strategy = "ascending",
+    border = true,
+}
+
 
 -- Whaler Main functions ---
 

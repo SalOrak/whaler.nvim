@@ -7,7 +7,7 @@ Lost in the ocean of your unordered and unorganized file-explorer looking for th
 
 ## What is Whaler?
 
-**Whaler** is a [Telescope](https://github.com/nvim-telescope/telescope.nvim) extension to move ~~blazingly~~ fast to directories.
+**Whaler** is a [Telescope](https://github.com/nvim-telescope/telescope.nvim) extension to move ~~blazingly~~ fast between directories.
 
 It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/.dotfiles/blob/master/bin/.local/scripts/tmux-windowizer) from [ThePrimeagen](https://github.com/ThePrimeagen) which uses a set of directories and [fzf](https://github.com/junegunn/fzf) to move to another directory whilst creating a new tmux session.
 
@@ -22,6 +22,7 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 - [Usage](#usage)
 - [Customization](#customization)
 - [Supported File Explorers](#supported-file-explorers)
+- [Related Projects](#related-projects)
 
 ## Getting Started
 

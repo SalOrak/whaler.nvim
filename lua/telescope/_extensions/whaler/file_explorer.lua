@@ -52,12 +52,10 @@ M.check_config = function(config)
         log.warn("Command is not present in file_explorer_config. It is used to toggle or activate the file explorer")
         return false
     end
-
+    -- TODO: Check why Explore is not by default in the nvim_get_commands() function. Is it because of Lazy?
     local nvim_cmds = _api.nvim_get_commands({})
-
-    if nvim_cmds[config["command"]] == nil then
-        log.info("Command ".. config["command"] .. " is not a valid nvim command")
-        log.info(vim.inspect(nvim_cmds))
+    if nvim_cmds[config["command"]] == nil  and false then
+        log.warn("Command ".. config["command"] .. " is not a valid nvim command")
         return true
     end
 
