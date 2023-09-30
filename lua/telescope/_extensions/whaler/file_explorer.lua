@@ -25,7 +25,7 @@ local FILEX_ENUM = {
         command = "NvimTreeOpen",
     },
     neotree= {
-        -- RECOMMENDATION sync_root_with_cwd = true for Whaler to work properly
+        -- Works out of the box.
         plugin_name = "neo-tree",
         command = "Neotree",
     },

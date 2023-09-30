@@ -1,2 +1,121 @@
-# whaler
-Telescope extension to fuzzy find and search subdirectories of specific directoris. 
+# Whaler
+
+![Whaler Logo](whaler-logo.png)
+
+Lost in the ocean of your unordered and unorganized file-explorer looking for that project? 
+
+
+## What is Whaler?
+
+**Whaler** is a [Telescope](https://github.com/nvim-telescope/telescope.nvim) extension to move ~~blazingly~~ fast to directories.
+
+It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/.dotfiles/blob/master/bin/.local/scripts/tmux-windowizer) from [ThePrimeagen](https://github.com/ThePrimeagen) which uses a set of directories and [fzf](https://github.com/junegunn/fzf) to move to another directory whilst creating a new tmux session.
+
+**Whaler** offers a fast experience to move between projects without having much hassle.
+
+![whaler-example](whaler-example.gif)
+
+
+## Whaler: Table of Contents
+
+- [Getting started](#getting-started)
+- [Usage](#usage)
+- [Customization](#customization)
+- [Supported File Explorers](#supported-file-explorers)
+
+## Getting Started
+
+**Whaler** is a neovim telescope plugin extension.
+
+#### Dependencies
+
+- [Neovim (v0.9.0)](https://github.com/neovim/neovim/releases/tag/v0.9.0)
+- [Telescope](https://github.com/nvim-telescope/telescope.nvim)
+
+#### Installation guide
+
+It is recommended to put `whaler` as a Telescope dependency.
+
+Using **lazy**:
+```lua
+return {
+    "SalOrak/whaler"
+}
+```
+
+## Usage
+
+Whaler does not have any **mappings** by default. It is up to you to create any mappings.
+
+In the Telescope configuration file:
+```lua
+-- Telescope setup()
+local telescope = require('telescope')
+
+telescope.setup({
+    -- Your telescope setup here...
+    extensions = {
+        whaler = {
+            -- Whaler configuration
+        }
+    }
+})
+-- More config here
+telescope.load_extension("whaler")
+--
+
+-- Open whaler using <leader>fw
+vim.keymap.set("n", "<leader>fw", function()
+    local w = telescope.extensions.whaler.whaler
+    w({
+        -- Telescope theme settings here
+    })
+ end,)
+
+-- Or directly
+vim.keymap.set("n", "<leader>fw", telescope.extensions.whaler.whaler)
+
+```
+
+## Customization
+
+Whaler supports a few configuration options.
+Here is the list of a default configuration:
+```lua
+whaler = {
+    directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
+    auto_file_explorer = true, -- Whether to automatically open file explorer. By default is true
+    file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. Options are "netrw"(default), "nvimtree", "neotree".
+    file_explorer_config = { -- Map to configure what command is trigger but which plugin
+        plugin_name = "netrw", -- Plugin. Should be installed.
+        command = "Explorer", -- The plugin command to open.
+                              -- Command must accept a path as parameter
+    },
+    theme = {} -- Telescope theme options.
+}
+```
+
+## Supported File Explorer
+
+Currently the following file explorers are supported out of the box:
+- [netrw](): Default and fallback option.
+- [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
+- [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwt = true` in the `nvim-tree` setup function.
+
+
+## Related projects
+
+There are MANY file explorers in the neovim community. This is NOT a replacement for any of them but an improvement using Telescope.
+
+But there are many extensions and projects that do the relatively the same thing. 
+
+Check them out:
+- [telescope-pathogen](https://github.com/brookhong/telescope-pathogen.nvim)
+- [telescope-project](https://github.com/nvim-telescope/telescope-project.nvim)
+- [telescope-repo](https://github.com/cljoly/telescope-repo.nvim)
+
+You can find more telescope extensions in the [Telescope Extensions Wiki](https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions).
+
+If you use or prefer any other let me know I'll add them here.
+
+
