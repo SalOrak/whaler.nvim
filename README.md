@@ -15,6 +15,11 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 
 ![whaler-example](whaler-example.gif)
 
+`Whaler.nvin` does primarly the following things:
+1. Looks for subdirectories in a set of directories passed as arguments.
+2. Fuzzy finds among the subdirectories.
+3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory.
+4. Automatically opens the desired file explorer. 
 
 ## Whaler: Table of Contents
 
@@ -87,7 +92,7 @@ whaler = {
     directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is true
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. Options are "netrw"(default), "nvimtree", "neotree".
-    file_explorer_config = { -- Map to configure what command is trigger but which plugin
+    file_explorer_config = { -- (OPTIONAL) Map to configure what command is trigger but which plugin. For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.
                               -- Command must accept a path as parameter
@@ -101,7 +106,7 @@ whaler = {
 Currently the following file explorers are supported out of the box:
 - [netrw](): Default and fallback option.
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
-- [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwt = true` in the `nvim-tree` setup function.
+- [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwd = true` in the `nvim-tree` setup function.
 
 
 ## Related projects
