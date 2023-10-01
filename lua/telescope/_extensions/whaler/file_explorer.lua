@@ -11,7 +11,7 @@ local M = {}
 local FILEX_ENUM = {
     netrw = {
         plugin_name = "netrw",
-        command = "Explore ",
+        command = "Explore",
     },
     --[[ TODO: Does not work very well as it gets out of nvim?? 
     nnn = {

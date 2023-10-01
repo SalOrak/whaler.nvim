@@ -26,6 +26,7 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 - [Getting started](#getting-started)
 - [Usage](#usage)
 - [Customization](#customization)
+- [Use cases](#use-cases)
 - [Supported File Explorers](#supported-file-explorers)
 - [Related Projects](#related-projects)
 
@@ -63,6 +64,7 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
+            directories = { "path/to/dir", "path/to/another/dir" },
         }
     }
 })
@@ -74,14 +76,15 @@ telescope.load_extension("whaler")
 vim.keymap.set("n", "<leader>fw", function()
     local w = telescope.extensions.whaler.whaler
     w({
-        -- Telescope theme settings here
+        -- Settings can also be called here
     })
  end,)
 
 -- Or directly
 vim.keymap.set("n", "<leader>fw", telescope.extensions.whaler.whaler)
-
 ```
+
+Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
 
 ## Customization
 
@@ -90,18 +93,66 @@ Here is the list of a default configuration:
 ```lua
 whaler = {
     directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
-    auto_file_explorer = true, -- Whether to automatically open file explorer. By default is true
-    file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. Options are "netrw"(default), "nvimtree", "neotree".
-    file_explorer_config = { -- (OPTIONAL) Map to configure what command is trigger but which plugin. For basic configuration this is done automatically setting up the file_explorer config.
+    auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
+    auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
+    file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
+                             -- Options are "netrw"(default), "nvimtree", "neotree".
+    file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
+                             -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.
                               -- Command must accept a path as parameter
     },
-    theme = {} -- Telescope theme options.
+    theme = {                -- Telescope theme default Whaler options.
+        results_title = false,
+        layout_strategy = "center",
+        previewer = false,
+        layout_config = {
+            height =  0.3,
+            width = 0.4
+        },
+        sorting_strategy = "ascending",
+        border = true,
+    } 
+}
+```
+By default `Whaler.nvim` changes the current working directory (*cwd*) to the selected directory AND opens the file explorer (`netrw` by default). 
+Changing `auto_cwd` to `false` will make Whaler to only open the file explorer in the selected directory while maintaining the previous current working directory.
+
+Changing `auto_file_explorer` to `false` while keeping `auto_cwd` enabled will make Whaler to change the current working directory to the selected one but without losing the current file. 
+
+**Attention!**: Setting both `auto_cwd` and `auto_file_explorer` to false will make Whaler almost useless as it won't affect to anything.
+
+The `file_explorer` is a shortcut that automatically create a `file_explorer_config` with some basics commands. You can, for example, use the default `netrw` but instead of using `Explore` you can split it using `VExplore`. To do the whaler setup config should be like
+```
+whaler = {
+    -- Some config here
+    file_explorer_config = {
+        plugin_name = "netrw", -- Plugin name.
+        command = "Vexplore", -- Vertical file explorer command
+    },
 }
 ```
 
-## Supported File Explorer
+## Use cases
+
+Here I'll show some few use cases for `Whaler.nvim`.
+I'll be adding more but if you have any special use case please let me know and I'll add it here!
+
+#### Split-viewing files from different projects
+
+Using the following **setup**:
+```
+whaler = {
+    directories = { "/home/user/work" }, 
+    auto_file_explorer = false, -- Do not open file explorer
+    auto_cwd = true, -- But change working directory
+}
+```
+Imaging you are starting a new project called **harp** inside your work path (`"/home/user/work"`). This new project it is similar to another already developed project called **Wheel** but with some fundamental changes. You want to compare the starting files side by side. You can enter the **harp** project and open the starting file. Then execute `Whaler.nvim` with the previous configuration setup and select the **Wheel** project. Notice that nothing really changed. But if you now find files in the current directory using `Telescope find_files` it would display ALL the **Wheel** files available. You can then open the desired file in a vertical split (default to `<C-v>` ) and keep modifying the main file in the **harp** project having the developed main **Wheel** side by side.
+
+
+## Supported File Explorers
 
 Currently the following file explorers are supported out of the box:
 - [netrw](): Default and fallback option.
@@ -111,9 +162,9 @@ Currently the following file explorers are supported out of the box:
 
 ## Related projects
 
-There are MANY file explorers in the neovim community. This is NOT a replacement for any of them but an improvement using Telescope.
+There are MANY file explorers in the neovim community. This is NOT a replacement for any of them but an improvement whilst using Telescope.
 
-But there are many extensions and projects that do the relatively the same thing. 
+But there are many extensions and projects that do relatively the same thing. 
 
 Check them out:
 - [telescope-pathogen](https://github.com/brookhong/telescope-pathogen.nvim)
@@ -122,6 +173,6 @@ Check them out:
 
 You can find more telescope extensions in the [Telescope Extensions Wiki](https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions).
 
-If you use or prefer any other let me know I'll add them here.
+If you use or prefer any other let me know and I'll add them here.
 
 

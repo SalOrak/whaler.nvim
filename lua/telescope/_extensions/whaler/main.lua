@@ -22,7 +22,8 @@ local M = {}
 -- Whaler variables (on setup)
 local directories -- Absolute path directories to search in (default {}) (map)
 local auto_file_explorer -- Whether to automatically open file explorer  (default true) (boolean)
-local file_explorer -- Which file explorer to open (netrw, nvim-tree, nerdtree, fern, nnn)
+local auto_cwd -- Whether to automatically change working directory (default true) (boolean)
+local file_explorer -- Which file explorer to open (netrw, nvim-tree, neo-tree)
 local file_explorer_config -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle }  -- Does NOT accept netrw
 
 -- Telescope variables
@@ -32,7 +33,7 @@ local theme_opts  = { -- Theme Options table
     previewer = false,
     layout_config = {
         --preview_cutoff = 1000,
-        height =  0.2,
+        height =  0.3,
         width = 0.4
     },
     sorting_strategy = "ascending",
@@ -70,7 +71,7 @@ M.get_entries = function(tbl_dir)
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
         log.error("Table must contain valid directories")
-        return
+        return {}
     end
 
     local tbl_entries = {}
@@ -119,10 +120,13 @@ M.whaler = function(opts)
                 local selection = _action_state.get_selected_entry()
                 if selection then
                     -- Change current directory
-                    vim.api.nvim_set_current_dir(selection[1])
+                    if auto_cwd then
+                        vim.api.nvim_set_current_dir(selection[1])
+                    end
+
                     if auto_file_explorer then
                         -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. selection[1],{})
+                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. " " .. selection[1],{})
                         -- Execute command
                         vim.api.nvim_cmd(cmd, {})
                     end
@@ -140,7 +144,21 @@ M.setup = function(setup_config)
     end
 
     directories = setup_config.directories or {} -- No directories by default
-    auto_file_explorer = setup_config.auto_file_explorer or true -- true by default
+
+    -- Open file explorer is true by default
+    if setup_config.auto_file_explorer == nil then
+        auto_file_explorer = true
+    else 
+        auto_file_explorer = setup_config.auto_file_explorer 
+    end
+
+    -- Change directory is true by default
+    if setup_config.auto_cwd == nil then
+        auto_cwd = true
+    else 
+        auto_cwd = setup_config.auto_cwd 
+    end
+
     file_explorer = setup_config.file_explorer or "netrw" -- netrw by default
     file_explorer_config = setup_config.file_explorer_config or _filex.create_config(file_explorer)
 
