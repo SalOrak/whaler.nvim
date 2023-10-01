@@ -117,6 +117,7 @@ whaler = {
 }
 ```
 By default `Whaler.nvim` changes the current working directory (*cwd*) to the selected directory AND opens the file explorer (`netrw` by default). 
+
 Changing `auto_cwd` to `false` will make Whaler to only open the file explorer in the selected directory while maintaining the previous current working directory.
 
 Changing `auto_file_explorer` to `false` while keeping `auto_cwd` enabled will make Whaler to change the current working directory to the selected one but without losing the current file. 
