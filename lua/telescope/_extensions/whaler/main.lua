@@ -140,7 +140,8 @@ end
 M.setup = function(setup_config)
 
     if setup_config.theme and setup_config.theme ~= "" then
-        theme_opts = _themes["get_" .. setup_config.theme]()
+        -- theme_opts = _themes["get_" .. setup_config.theme]()
+        theme_opts = vim.tbl_deep_extend("force", theme_opts, setup_config.theme or {})
     end
 
     directories = setup_config.directories or {} -- No directories by default
