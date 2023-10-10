@@ -125,7 +125,7 @@ Changing `auto_file_explorer` to `false` while keeping `auto_cwd` enabled will m
 **Attention!**: Setting both `auto_cwd` and `auto_file_explorer` to false will make Whaler almost useless as it won't affect to anything.
 
 The `file_explorer` is a shortcut that automatically create a `file_explorer_config` with some basics commands. You can, for example, use the default `netrw` but instead of using `Explore` you can split it using `VExplore`. To do the whaler setup config should be like
-```
+```lua
 whaler = {
     -- Some config here
     file_explorer_config = {
@@ -143,7 +143,7 @@ I'll be adding more but if you have any special use case please let me know and 
 #### Split-viewing files from different projects
 
 Using the following **setup**:
-```
+```lua
 whaler = {
     directories = { "/home/user/work" }, 
     auto_file_explorer = false, -- Do not open file explorer
