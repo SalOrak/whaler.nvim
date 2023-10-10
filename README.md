@@ -96,7 +96,7 @@ whaler = {
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
-                             -- Options are "netrw"(default), "nvimtree", "neotree".
+                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil".
     file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
                              -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
@@ -158,6 +158,7 @@ Imaging you are starting a new project called **harp** inside your work path (`"
 Currently the following file explorers are supported out of the box:
 - [netrw](): Default and fallback option.
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
+- [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
 - [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwd = true` in the `nvim-tree` setup function.
 
 

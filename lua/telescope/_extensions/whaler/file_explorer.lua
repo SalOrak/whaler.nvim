@@ -29,6 +29,11 @@ local FILEX_ENUM = {
         plugin_name = "neo-tree",
         command = "Neotree",
     },
+    oil = {
+        -- Works out of the box.
+        plugin_name = "oil",
+        command = "Oil",
+    },
 }
 
 M.check_config = function(config)
