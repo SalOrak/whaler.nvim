@@ -4,7 +4,7 @@ Author: Sal O'Rak  <https://github.com/salorak>
 License: MIT
 
 ==============================================================================
-CONTENTS                                                           *whaler*
+CONTENTS
 
   1. Introduction                             |whaler-introduction|
   2. Quickstart                               |whaler-quickstart|
