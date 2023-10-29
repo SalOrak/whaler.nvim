@@ -1,36 +1,36 @@
-# Whaler
+*whaler* Whaler.nvim
 
-![Whaler Logo](whaler-logo.png)
+Author: Sal O'Rak  <https://github.com/salorak> 
+License: MIT
 
-Lost in the ocean of your unordered and unorganized file-explorer looking for that project? Whaler has you covered.
+==============================================================================
+CONTENTS                                                           *whaler*
 
+  1. Introduction                             |whaler-introduction|
+  2. Quickstart                               |whaler-quickstart|
+  3. Usage                                    |whaler-usage|
+  4. Customization                            |whaler-customization|
+  5. Supported file explorer                  |whaler-supported-file-explorers|
 
-## What is Whaler?
+==============================================================================
+ 1. INTRODUCTION                                      *whaler-introduction*
 
-**Whaler** is a [Telescope](https://github.com/nvim-telescope/telescope.nvim) extension to move ~~blazingly~~ fast between directories.
+**Whaler** is a neovim telescope plugin extension that allows telescope user to move blazingly fast between directories.
 
 It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/.dotfiles/blob/master/bin/.local/scripts/tmux-windowizer) from [ThePrimeagen](https://github.com/ThePrimeagen) which uses a set of directories and [fzf](https://github.com/junegunn/fzf) to move to another directory in a new tmux session.
 
-**Whaler** offers a fast experience to move between projects without having much hassle.
+**Whaler** offers a fast experience to move between projects without much hassle.
 
-![whaler-example](whaler-example.gif)
 
-`Whaler.nvin` does primarly the following things:
+**Whaler** does primarly the following things:
 1. Looks for subdirectories in a set of directories passed as arguments.
-2. Fuzzy finds among the subdirectories.
-3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory. (customizable)
-4. Automatically opens the desired file explorer.  (customizable)
+2. Fuzzy finds among the subdirectories
+3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory.
+4. Automatically opens the desired file explorer.
 
-## Whaler: Table of Contents
 
-- [Getting started](#getting-started)
-- [Usage](#usage)
-- [Customization](#customization)
-- [Use cases](#use-cases)
-- [Supported File Explorers](#supported-file-explorers)
-- [Related Projects](#related-projects)
-
-## Getting Started
+==============================================================================
+ 2. QUICKSTART                                        *whaler-quickstart*
 
 **Whaler** is a neovim telescope plugin extension.
 
@@ -50,9 +50,10 @@ return {
 }
 ```
 
-## Usage
+==============================================================================
+ 3. USAGE                                             *whaler-usage*
 
-Whaler does not have any **mappings** by default. It is up to you to create any mappings.
+ Whaler does not have any **mappings** by default. It is up to you to create any mappings.
 
 In the Telescope configuration file:
 ```lua
@@ -64,7 +65,6 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
-            directories = { "path/to/dir", "path/to/another/dir" },
         }
     }
 })
@@ -76,20 +76,21 @@ telescope.load_extension("whaler")
 vim.keymap.set("n", "<leader>fw", function()
     local w = telescope.extensions.whaler.whaler
     w({
-        -- Settings can also be called here
+        -- Telescope theme settings here
     })
  end,)
 
 -- Or directly
 vim.keymap.set("n", "<leader>fw", telescope.extensions.whaler.whaler)
+
 ```
 
-Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
-
-## Customization
+==============================================================================
+ 4. CUSTOMIZATION                                     *whaler-customization*
 
 Whaler supports a few configuration options.
 Here is the list of a default configuration:
+
 ```lua
 whaler = {
     directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
@@ -135,46 +136,11 @@ whaler = {
 }
 ```
 
-## Use cases
-
-Here I'll show some few use cases for `Whaler.nvim`.
-I'll be adding more but if you have any special use case please let me know and I'll add it here!
-
-#### Split-viewing files from different projects
-
-Using the following **setup**:
-```lua
-whaler = {
-    directories = { "/home/user/work" }, 
-    auto_file_explorer = false, -- Do not open file explorer
-    auto_cwd = true, -- But change working directory
-}
-```
-Imaging you are starting a new project called **harp** inside your work path (`"/home/user/work"`). This new project it is similar to another already developed project called **Wheel** but with some fundamental changes. You want to compare the starting files side by side. You can enter the **harp** project and open the starting file. Then execute `Whaler.nvim` with the previous configuration setup and select the **Wheel** project. Notice that nothing really changed. But if you now find files in the current directory using `Telescope find_files` it would display ALL the **Wheel** files available. You can then open the desired file in a vertical split (default to `<C-v>` ) and keep modifying the main file in the **harp** project having the developed main **Wheel** side by side.
-
-
-## Supported File Explorers
+==============================================================================
+ 5. SUPPORTED FILE EXPLORERS                         *whaler-supported-file-explorers*
 
 Currently the following file explorers are supported out of the box:
 - [netrw](): Default and fallback option.
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
 - [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
 - [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwd = true` in the `nvim-tree` setup function.
-
-
-## Related projects
-
-There are MANY file explorers in the neovim community. This is NOT a replacement for any of them but an improvement whilst using Telescope.
-
-But there are many extensions and projects that do relatively the same thing. 
-
-Check them out:
-- [telescope-pathogen](https://github.com/brookhong/telescope-pathogen.nvim)
-- [telescope-project](https://github.com/nvim-telescope/telescope-project.nvim)
-- [telescope-repo](https://github.com/cljoly/telescope-repo.nvim)
-
-You can find more telescope extensions in the [Telescope Extensions Wiki](https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions).
-
-If you use or prefer any other let me know and I'll add them here.
-
-
