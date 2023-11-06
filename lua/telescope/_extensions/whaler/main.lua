@@ -49,7 +49,7 @@ M.get_subdir = function(dir)
 
     if _fn.isdirectory(dir) == 0 then
         log.warn("Directory "..dir.. " is not a valid directory")
-        return {} 
+        return {}
     end
 
     local tbl_dir = {}
@@ -91,7 +91,7 @@ M.dirs = function()
     -- ["/Users/hector-nuwe/personal/whaler"] 
     -- { "/Users/hector-nuwe/personal/whaler"}
     --]]
-    
+
     local hd = directories or {}
     local shd = M.get_entries(hd) or {}
     local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
@@ -126,7 +126,7 @@ M.whaler = function(opts)
 
                     if auto_file_explorer then
                         -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. " " .. selection[1],{})
+                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. file_explorer_config["prefix_dir"].. selection[1],{})
                         -- Execute command
                         vim.api.nvim_cmd(cmd, {})
                     end
@@ -149,15 +149,15 @@ M.setup = function(setup_config)
     -- Open file explorer is true by default
     if setup_config.auto_file_explorer == nil then
         auto_file_explorer = true
-    else 
-        auto_file_explorer = setup_config.auto_file_explorer 
+    else
+        auto_file_explorer = setup_config.auto_file_explorer
     end
 
     -- Change directory is true by default
     if setup_config.auto_cwd == nil then
         auto_cwd = true
-    else 
-        auto_cwd = setup_config.auto_cwd 
+    else
+        auto_cwd = setup_config.auto_cwd
     end
 
     file_explorer = setup_config.file_explorer or "netrw" -- netrw by default

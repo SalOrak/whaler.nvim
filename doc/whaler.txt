@@ -97,12 +97,16 @@ whaler = {
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
-                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil".
+                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser".
     file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
                              -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.
                               -- Command must accept a path as parameter
+        prefix_dir = " ",     -- Prefix string to be appended after the command and before the directory path. 
+                              -- Example: In the `telescope_file_browser` the value is ` path=`.
+                              --          The final command is `Telescope file_browser path=/path/to/dir`.
+                              -- By default is " " (space)
     },
     theme = {                -- Telescope theme default Whaler options.
         results_title = false,
@@ -132,6 +136,7 @@ whaler = {
     file_explorer_config = {
         plugin_name = "netrw", -- Plugin name.
         command = "Vexplore", -- Vertical file explorer command
+        prefix_dir = " ", -- (Optional) By default is space.
     },
 }
 ```
@@ -144,3 +149,4 @@ Currently the following file explorers are supported out of the box:
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
 - [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
 - [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwd = true` in the `nvim-tree` setup function.
+- [Telescope-file-browser](https://github.com/nvim-telescope/telescope-file-browser.nvim). Does not require any configuration.

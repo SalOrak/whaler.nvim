@@ -12,6 +12,7 @@ local FILEX_ENUM = {
     netrw = {
         plugin_name = "netrw",
         command = "Explore",
+        prefix_dir = " ",
     },
     --[[ TODO: Does not work very well as it gets out of nvim?? 
     nnn = {
@@ -23,16 +24,25 @@ local FILEX_ENUM = {
         -- RECOMMENDATION sync_root_with_cwd = true for Whaler to work properly
         plugin_name = "nvim-tree",
         command = "NvimTreeOpen",
+        prefix_dir = " ",
     },
     neotree= {
         -- Works out of the box.
         plugin_name = "neo-tree",
         command = "Neotree",
+        prefix_dir = " ",
     },
     oil = {
         -- Works out of the box.
         plugin_name = "oil",
         command = "Oil",
+        prefix_dir = " ",
+    },
+    telescope_file_browser = {
+        -- Works out of the box.
+        plugin_name = "telescope",
+        command = "Telescope file_browser",
+        prefix_dir = " path=",
     },
 }
 
@@ -64,13 +74,19 @@ M.check_config = function(config)
         return true
     end
 
+    if config["prefix_dir"] == nil then
+        -- Warning is not required as it has an space as fallback.
+        -- This is an option end users should not be modifying much. It is valuable to add support to more commands.
+        config["prefix_dir"] = " " -- By default is an space.
+    end
+
     return true
 end
 
 M.create_config = function(file_explorer)
-    
+
     if FILEX_ENUM[file_explorer] == nil then
-        log.error("Option " .. file_explorer .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree'\n")
+        log.error("Option " .. file_explorer .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' | 'telescope_file_browser' \n")
         return {}
     end
 
