@@ -59,7 +59,7 @@ M.get_subdir = function(dir)
     local tbl_dir = {}
 
     if is_singleton_dir  then
-        tbl_dir[dir:sub(1)] = dir:sub(1)
+        tbl_dir[dir] = dir
     else
         for _,v in pairs(_fn.readdir(dir)) do
             local entry = dir .. "/" .. v
