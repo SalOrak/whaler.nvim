@@ -46,6 +46,10 @@ local theme_opts  = { -- Theme Options table
 M.get_subdir = function(dir)
     -- Get all subdirectories from a directory
     dir = dir or {}
+    local is_singleton_dir = string.sub(dir, 1, 1) == "="
+    if is_singleton_dir then
+        dir = dir:sub(2)
+    end
 
     if _fn.isdirectory(dir) == 0 then
         log.warn("Directory "..dir.. " is not a valid directory")
@@ -54,11 +58,15 @@ M.get_subdir = function(dir)
 
     local tbl_dir = {}
 
-    for _,v in pairs(_fn.readdir(dir)) do
-        local entry = dir .. "/" .. v
-        if _fn.isdirectory(entry) == 1 then
-            local parsed_dir = _utils.parse_directory(entry)
-            tbl_dir[parsed_dir] = parsed_dir
+    if is_singleton_dir  then
+        tbl_dir[dir:sub(1)] = dir:sub(1)
+    else
+        for _,v in pairs(_fn.readdir(dir)) do
+            local entry = dir .. "/" .. v
+            if _fn.isdirectory(entry) == 1 then
+                local parsed_dir = _utils.parse_directory(entry)
+                tbl_dir[parsed_dir] = parsed_dir
+            end
         end
     end
 
