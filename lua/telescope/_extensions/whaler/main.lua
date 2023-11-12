@@ -59,13 +59,13 @@ M.get_subdir = function(dir)
     local tbl_dir = {}
 
     if is_singleton_dir  then
-        tbl_dir[dir] = dir
+        tbl_dir[1] = dir
     else
         for _,v in pairs(_fn.readdir(dir)) do
             local entry = dir .. "/" .. v
             if _fn.isdirectory(entry) == 1 then
                 local parsed_dir = _utils.parse_directory(entry)
-                tbl_dir[parsed_dir] = parsed_dir
+                tbl_dir[#tbl_dir + 1] = parsed_dir
             end
         end
     end
@@ -83,10 +83,19 @@ M.get_entries = function(tbl_dir)
     end
 
     local tbl_entries = {}
-    for _,v1 in ipairs(tbl_dir) do
-        local subdirs = M.get_subdir(v1)
-        for k,v in pairs(subdirs) do
-            tbl_entries[k] = v
+    for _,dir in ipairs(tbl_dir) do
+        local dir_tbl
+        -- If we passed a string we assume there is no alias and turn it into a
+        -- directory specification to make the code more uniform
+        if type(dir) == "string" then
+            dir_tbl = {path=dir, alias=nil}
+        else
+            dir_tbl = dir
+        end
+
+        local subdirs = M.get_subdir(dir_tbl.path)
+        for _,v in ipairs(subdirs) do
+            tbl_entries[#tbl_entries + 1] = {path=v, alias=dir_tbl.alias}
         end
     end
 
@@ -94,12 +103,6 @@ M.get_entries = function(tbl_dir)
 end
 
 M.dirs = function()
-    --[[
-    -- Current entries interface
-    -- ["/Users/hector-nuwe/personal/whaler"] 
-    -- { "/Users/hector-nuwe/personal/whaler"}
-    --]]
-
     local hd = directories or {}
     local shd = M.get_entries(hd) or {}
     local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
@@ -111,14 +114,27 @@ M.whaler = function(opts)
     opts = vim.tbl_deep_extend("force", theme_opts, opts or {})
 
     local dirs = M.dirs() or {}
-    if next(dirs) ~= nil then
-        dirs = _fn.values(dirs)
+
+    local format_entry = function(entry)
+        if entry.alias then
+            return ("[".. entry.alias.."] " .. _fn.fnamemodify(entry.path, ':t'))
+        else
+            return entry.path
+        end
     end
 
     _pickers.new(opts, {
         prompt_title = "Whaler",
         finder = _finders.new_table{
-            results = dirs
+            results = dirs,
+            entry_maker = function(entry)
+                return {
+                    path = entry.path,
+                    alias=entry.alias,
+                    ordinal = format_entry(entry),
+                    display = format_entry(entry),
+                }
+            end,
         },
         sorter = _conf.generic_sorter(opts),
         previewer = _conf.file_previewer(opts),
@@ -129,12 +145,12 @@ M.whaler = function(opts)
                 if selection then
                     -- Change current directory
                     if auto_cwd then
-                        vim.api.nvim_set_current_dir(selection[1])
+                        vim.api.nvim_set_current_dir(selection.path)
                     end
 
                     if auto_file_explorer then
                         -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. file_explorer_config["prefix_dir"].. selection[1],{})
+                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. file_explorer_config["prefix_dir"].. selection.path,{})
                         -- Execute command
                         vim.api.nvim_cmd(cmd, {})
                     end
