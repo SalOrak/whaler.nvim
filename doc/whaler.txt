@@ -94,9 +94,9 @@ Here is the list of a default configuration:
 ```lua
 whaler = {
     -- Absolute path directories to search. By default the list is empty. A folder path may be
-    directories = { "/home/user/projects", "/home/user/work", "=/path/to/single/folder"}, 
-    -- You may also add directories that will not be search for subdirectories
-    singleton_directories = { "/home/user/path/to/project" },
+    directories = { "/home/user/projects", "/home/user/work" }, 
+    -- You may also add directories that will not be searched for subdirectories
+    oneoff_directories = { "/home/user/path/to/project" },
 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
