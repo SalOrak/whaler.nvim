@@ -21,6 +21,7 @@ local M = {}
 
 -- Whaler variables (on setup)
 local directories -- Absolute path directories to search in (default {}) (map)
+local singletong_directories -- Absolute path to singleton directories
 local auto_file_explorer -- Whether to automatically open file explorer  (default true) (boolean)
 local auto_cwd -- Whether to automatically change working directory (default true) (boolean)
 local file_explorer -- Which file explorer to open (netrw, nvim-tree, neo-tree)
@@ -46,10 +47,6 @@ local theme_opts  = { -- Theme Options table
 M.get_subdir = function(dir)
     -- Get all subdirectories from a directory
     dir = dir or {}
-    local is_singleton_dir = string.sub(dir, 1, 1) == "="
-    if is_singleton_dir then
-        dir = dir:sub(2)
-    end
 
     if _fn.isdirectory(dir) == 0 then
         log.warn("Directory "..dir.. " is not a valid directory")
@@ -58,15 +55,11 @@ M.get_subdir = function(dir)
 
     local tbl_dir = {}
 
-    if is_singleton_dir  then
-        tbl_dir[dir] = dir
-    else
-        for _,v in pairs(_fn.readdir(dir)) do
-            local entry = dir .. "/" .. v
-            if _fn.isdirectory(entry) == 1 then
-                local parsed_dir = _utils.parse_directory(entry)
-                tbl_dir[parsed_dir] = parsed_dir
-            end
+    for _,v in pairs(_fn.readdir(dir)) do
+        local entry = dir .. "/" .. v
+        if _fn.isdirectory(entry) == 1 then
+            local parsed_dir = _utils.parse_directory(entry)
+            tbl_dir[parsed_dir] = parsed_dir
         end
     end
 
@@ -101,8 +94,12 @@ M.dirs = function()
     --]]
 
     local hd = directories or {}
-    local shd = M.get_entries(hd) or {}
-    local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
+    local subdirs = M.get_entries(hd) or {}
+
+    -- Merge the singleton directories
+    for _, singleton in ipairs(singleton_directories)do
+        subdirs[singleton] = singleton
+    end
 
     return subdirs
 end
@@ -153,6 +150,7 @@ M.setup = function(setup_config)
     end
 
     directories = setup_config.directories or {} -- No directories by default
+    singleton_directories = setup_config.singleton_directories or {} -- No directories by default
 
     -- Open file explorer is true by default
     if setup_config.auto_file_explorer == nil then

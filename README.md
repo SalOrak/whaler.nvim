@@ -64,8 +64,9 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
-            -- You may prefix a path with `=` to add a singleton project directory
-            directories = { "path/to/dir", "path/to/another/dir", "=path/to/project/folder" },
+            directories = { "path/to/dir", "path/to/another/dir" },
+            -- You may also add directories that will not be search for subdirectories
+            singleton_directories = { "path/to/project/folder" },
         }
     }
 })
