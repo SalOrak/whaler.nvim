@@ -21,6 +21,7 @@ local M = {}
 
 -- Whaler variables (on setup)
 local directories -- Absolute path directories to search in (default {}) (map)
+local oneoff_directories -- Absolute path to oneoff directories
 local auto_file_explorer -- Whether to automatically open file explorer  (default true) (boolean)
 local auto_cwd -- Whether to automatically change working directory (default true) (boolean)
 local file_explorer -- Which file explorer to open (netrw, nvim-tree, neo-tree)
@@ -46,10 +47,6 @@ local theme_opts  = { -- Theme Options table
 M.get_subdir = function(dir)
     -- Get all subdirectories from a directory
     dir = dir or {}
-    local is_singleton_dir = string.sub(dir, 1, 1) == "="
-    if is_singleton_dir then
-        dir = dir:sub(2)
-    end
 
     if _fn.isdirectory(dir) == 0 then
         log.warn("Directory "..dir.. " is not a valid directory")
@@ -58,23 +55,20 @@ M.get_subdir = function(dir)
 
     local tbl_dir = {}
 
-    if is_singleton_dir  then
-        tbl_dir[1] = dir
-    else
-        for _,v in pairs(_fn.readdir(dir)) do
-            local entry = dir .. "/" .. v
-            if _fn.isdirectory(entry) == 1 then
-                local parsed_dir = _utils.parse_directory(entry)
-                tbl_dir[#tbl_dir + 1] = parsed_dir
-            end
+    for _,v in pairs(_fn.readdir(dir)) do
+        local entry = dir .. "/" .. v
+        if _fn.isdirectory(entry) == 1 then
+            local parsed_dir = _utils.parse_directory(entry)
+            tbl_dir[#tbl_dir + 1] = parsed_dir
         end
     end
 
     return tbl_dir
 end
 
-M.get_entries = function(tbl_dir)
+M.get_entries = function(tbl_dir, find_subdirectories)
 
+    local subdirs
     -- Get all subdirectories from a table of valid directories
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
@@ -93,7 +87,12 @@ M.get_entries = function(tbl_dir)
             dir_tbl = dir
         end
 
-        local subdirs = M.get_subdir(dir_tbl.path)
+        if find_subdirectories then
+            subdirs = M.get_subdir(dir_tbl.path)
+        else
+            subdirs = {dir_tbl.path}
+        end
+
         for _,v in ipairs(subdirs) do
             tbl_entries[#tbl_entries + 1] = {path=v, alias=dir_tbl.alias}
         end
@@ -104,8 +103,15 @@ end
 
 M.dirs = function()
     local hd = directories or {}
-    local shd = M.get_entries(hd) or {}
-    local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
+    local oneoff_hd = oneoff_directories or {}
+
+    local subdirs = M.get_entries(hd, true) or {}
+    local oneoff_dirs = M.get_entries(oneoff_hd, false) or {}
+
+    -- merge oneoff into subdirs
+    for _, oneoff in ipairs(oneoff_dirs) do
+        subdirs[#subdirs+1] = oneoff
+    end
 
     return subdirs
 end
@@ -169,6 +175,7 @@ M.setup = function(setup_config)
     end
 
     directories = setup_config.directories or {} -- No directories by default
+    oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default
 
     -- Open file explorer is true by default
     if setup_config.auto_file_explorer == nil then
