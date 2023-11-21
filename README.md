@@ -64,8 +64,9 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
-            -- You may prefix a path with `=` to add a singleton project directory
-            directories = { "path/to/dir", "path/to/another/dir", "=path/to/project/folder" },
+            directories = { "path/to/dir", "path/to/another/dir" },
+            -- You may also add directories that will not be searched for subdirectories
+            oneoff_directories = { "path/to/project/folder" },
         }
     }
 })
@@ -94,6 +95,7 @@ Here is the list of a default configuration:
 ```lua
 whaler = {
     directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
+    oneoff_directories = { "/home/user/.config/nvim" }, -- Absolute path directories to append directly to list of projects. By default is empty. 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
