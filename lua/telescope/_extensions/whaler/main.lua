@@ -110,8 +110,9 @@ M.dirs = function()
 
     -- merge oneoff into subdirs
     for _, oneoff in ipairs(oneoff_dirs) do
-        local parsed_oneoff = _utils.parse_directory(oneoff) -- Remove any / at the end.
-        subdirs[#subdirs+1] = parsed_oneoff
+        local parsed_oneoff = _utils.parse_directory(oneoff.path) -- Remove any / at the end.
+        oneoff.path = parsed_oneoff
+        subdirs[#subdirs+1] = oneoff
     end
 
     return subdirs
