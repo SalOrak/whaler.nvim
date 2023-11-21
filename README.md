@@ -86,6 +86,12 @@ vim.keymap.set("n", "<leader>fw", function()
 vim.keymap.set("n", "<leader>fw", telescope.extensions.whaler.whaler)
 ```
 
+In addition to passing strings into the `directories` and `oneoff_directories`
+parameters above one may also choose to use tables such as
+`{path="/path/to/dir", alias="Personal Projects"}`, this will modify the text
+presented in the selection UI to show `[Personal Projects] theproject` instead
+of the full path to each of the project folders.
+
 Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
 
 ## Customization
