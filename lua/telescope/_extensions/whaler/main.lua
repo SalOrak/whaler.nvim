@@ -21,6 +21,7 @@ local M = {}
 
 -- Whaler variables (on setup)
 local directories -- Absolute path directories to search in (default {}) (map)
+local oneoff_directories -- Absolute path to oneoff directories
 local auto_file_explorer -- Whether to automatically open file explorer  (default true) (boolean)
 local auto_cwd -- Whether to automatically change working directory (default true) (boolean)
 local file_explorer -- Which file explorer to open (netrw, nvim-tree, neo-tree)
@@ -93,8 +94,13 @@ M.dirs = function()
     --]]
 
     local hd = directories or {}
-    local shd = M.get_entries(hd) or {}
-    local subdirs = shd --_utils.merge_tables_by_key(shd,ahd) or {}
+    local subdirs = M.get_entries(hd) or {}
+
+    -- Merge the oneoff directories
+    for _, oneoff in ipairs(oneoff_directories) do
+        local parsed_oneoff = _utils.parse_directory(oneoff) -- Remove any / at the end.
+        subdirs[parsed_oneoff] = parsed_oneoff
+    end
 
     return subdirs
 end
@@ -145,6 +151,7 @@ M.setup = function(setup_config)
     end
 
     directories = setup_config.directories or {} -- No directories by default
+    oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default
 
     -- Open file explorer is true by default
     if setup_config.auto_file_explorer == nil then

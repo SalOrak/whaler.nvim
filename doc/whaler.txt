@@ -93,7 +93,11 @@ Here is the list of a default configuration:
 
 ```lua
 whaler = {
-    directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
+    -- Absolute path directories to search. By default the list is empty. A folder path may be
+    directories = { "/home/user/projects", "/home/user/work" }, 
+    -- You may also add directories that will not be searched for subdirectories
+    oneoff_directories = { "/home/user/path/to/project" },
+
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 

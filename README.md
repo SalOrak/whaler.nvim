@@ -65,6 +65,8 @@ telescope.setup({
         whaler = {
             -- Whaler configuration
             directories = { "path/to/dir", "path/to/another/dir" },
+            -- You may also add directories that will not be searched for subdirectories
+            oneoff_directories = { "path/to/project/folder" },
         }
     }
 })
