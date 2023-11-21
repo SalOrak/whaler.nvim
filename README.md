@@ -95,6 +95,7 @@ Here is the list of a default configuration:
 ```lua
 whaler = {
     directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
+    oneoff_directories = { "/home/user/.config/nvim" }, -- Absolute path directories to append directly to list of projects. By default is empty. 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
