@@ -97,8 +97,9 @@ M.dirs = function()
     local subdirs = M.get_entries(hd) or {}
 
     -- Merge the oneoff directories
-    for _, oneoff in ipairs(oneoff_directories)do
-        subdirs[oneoff] = oneoff
+    for _, oneoff in ipairs(oneoff_directories) do
+        local parsed_oneoff = _utils.parse_directory(oneoff) -- Remove any / at the end.
+        subdirs[parsed_oneoff] = parsed_oneoff
     end
 
     return subdirs
