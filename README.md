@@ -15,7 +15,7 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 
 ![whaler-example](whaler-example.gif)
 
-`Whaler.nvin` does primarly the following things:
+`Whaler.nvin` does primarily the following things:
 1. Looks for subdirectories in a set of directories passed as arguments.
 2. Fuzzy finds among the subdirectories.
 3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory. (customizable)
