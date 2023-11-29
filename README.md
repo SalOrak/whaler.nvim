@@ -15,7 +15,7 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 
 ![whaler-example](whaler-example.gif)
 
-`Whaler.nvin` does primarly the following things:
+`Whaler.nvin` does primarily the following things:
 1. Looks for subdirectories in a set of directories passed as arguments.
 2. Fuzzy finds among the subdirectories.
 3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory. (customizable)
@@ -85,6 +85,12 @@ vim.keymap.set("n", "<leader>fw", function()
 -- Or directly
 vim.keymap.set("n", "<leader>fw", telescope.extensions.whaler.whaler)
 ```
+
+In addition to passing strings into the `directories` and `oneoff_directories`
+parameters above one may also choose to use tables such as
+`{path="/path/to/dir", alias="Personal Projects"}`, this will modify the text
+presented in the selection UI to show `[Personal Projects] theproject` instead
+of the full path to each of the project folders.
 
 Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
 

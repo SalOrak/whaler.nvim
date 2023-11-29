@@ -59,15 +59,16 @@ M.get_subdir = function(dir)
         local entry = dir .. "/" .. v
         if _fn.isdirectory(entry) == 1 then
             local parsed_dir = _utils.parse_directory(entry)
-            tbl_dir[parsed_dir] = parsed_dir
+            tbl_dir[#tbl_dir + 1] = parsed_dir
         end
     end
 
     return tbl_dir
 end
 
-M.get_entries = function(tbl_dir)
+M.get_entries = function(tbl_dir, find_subdirectories)
 
+    local subdirs
     -- Get all subdirectories from a table of valid directories
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
@@ -76,10 +77,24 @@ M.get_entries = function(tbl_dir)
     end
 
     local tbl_entries = {}
-    for _,v1 in ipairs(tbl_dir) do
-        local subdirs = M.get_subdir(v1)
-        for k,v in pairs(subdirs) do
-            tbl_entries[k] = v
+    for _,dir in ipairs(tbl_dir) do
+        local dir_tbl
+        -- If we passed a string we assume there is no alias and turn it into a
+        -- directory specification to make the code more uniform
+        if type(dir) == "string" then
+            dir_tbl = {path=dir, alias=nil}
+        else
+            dir_tbl = dir
+        end
+
+        if find_subdirectories then
+            subdirs = M.get_subdir(dir_tbl.path)
+        else
+            subdirs = {dir_tbl.path}
+        end
+
+        for _,v in ipairs(subdirs) do
+            tbl_entries[#tbl_entries + 1] = {path=v, alias=dir_tbl.alias}
         end
     end
 
@@ -87,19 +102,17 @@ M.get_entries = function(tbl_dir)
 end
 
 M.dirs = function()
-    --[[
-    -- Current entries interface
-    -- ["/Users/hector-nuwe/personal/whaler"] 
-    -- { "/Users/hector-nuwe/personal/whaler"}
-    --]]
-
     local hd = directories or {}
-    local subdirs = M.get_entries(hd) or {}
+    local oneoff_hd = oneoff_directories or {}
 
-    -- Merge the oneoff directories
-    for _, oneoff in ipairs(oneoff_directories) do
-        local parsed_oneoff = _utils.parse_directory(oneoff) -- Remove any / at the end.
-        subdirs[parsed_oneoff] = parsed_oneoff
+    local subdirs = M.get_entries(hd, true) or {}
+    local oneoff_dirs = M.get_entries(oneoff_hd, false) or {}
+
+    -- merge oneoff into subdirs
+    for _, oneoff in ipairs(oneoff_dirs) do
+        local parsed_oneoff = _utils.parse_directory(oneoff.path) -- Remove any / at the end.
+        oneoff.path = parsed_oneoff
+        subdirs[#subdirs+1] = oneoff
     end
 
     return subdirs
@@ -109,14 +122,27 @@ M.whaler = function(opts)
     opts = vim.tbl_deep_extend("force", theme_opts, opts or {})
 
     local dirs = M.dirs() or {}
-    if next(dirs) ~= nil then
-        dirs = _fn.values(dirs)
+
+    local format_entry = function(entry)
+        if entry.alias then
+            return ("[".. entry.alias.."] " .. _fn.fnamemodify(entry.path, ':t'))
+        else
+            return entry.path
+        end
     end
 
     _pickers.new(opts, {
         prompt_title = "Whaler",
         finder = _finders.new_table{
-            results = dirs
+            results = dirs,
+            entry_maker = function(entry)
+                return {
+                    path = entry.path,
+                    alias=entry.alias,
+                    ordinal = format_entry(entry),
+                    display = format_entry(entry),
+                }
+            end,
         },
         sorter = _conf.generic_sorter(opts),
         previewer = _conf.file_previewer(opts),
@@ -127,12 +153,12 @@ M.whaler = function(opts)
                 if selection then
                     -- Change current directory
                     if auto_cwd then
-                        vim.api.nvim_set_current_dir(selection[1])
+                        vim.api.nvim_set_current_dir(selection.path)
                     end
 
                     if auto_file_explorer then
                         -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. file_explorer_config["prefix_dir"].. selection[1],{})
+                        local cmd = vim.api.nvim_parse_cmd(file_explorer_config["command"] .. file_explorer_config["prefix_dir"].. selection.path,{})
                         -- Execute command
                         vim.api.nvim_cmd(cmd, {})
                     end
