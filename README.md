@@ -15,7 +15,7 @@ It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/
 
 ![whaler-example](whaler-example.gif)
 
-`Whaler.nvin` does primarily the following things:
+`Whaler.nvim` does primarily the following things:
 1. Looks for subdirectories in a set of directories passed as arguments.
 2. Fuzzy finds among the subdirectories.
 3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory. (customizable)
@@ -64,9 +64,9 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
-            directories = { "path/to/dir", "path/to/another/dir" },
+            directories = { "path/to/dir", "path/to/another/dir", { path = "path/to/yet/another/dir", alias = "yet" } },
             -- You may also add directories that will not be searched for subdirectories
-            oneoff_directories = { "path/to/project/folder" },
+            oneoff_directories = { "path/to/project/folder",  { path = "path/to/another/project", alias = "Project Z" } },
         }
     }
 })
@@ -100,7 +100,7 @@ Whaler supports a few configuration options.
 Here is the list of a default configuration:
 ```lua
 whaler = {
-    directories = { "/home/user/projects", "/home/user/work"}, -- Absolute path directories to search. By default the list is empty.
+    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, -- Absolute path directories to search. By default the list is empty.
     oneoff_directories = { "/home/user/.config/nvim" }, -- Absolute path directories to append directly to list of projects. By default is empty. 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
