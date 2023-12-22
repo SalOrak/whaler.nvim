@@ -20,26 +20,31 @@ local _filex = require "telescope._extensions.whaler.file_explorer"
 local M = {}
 
 -- Whaler variables (on setup)
-local directories -- Absolute path directories to search in (default {}) (map)
-local oneoff_directories -- Absolute path to oneoff directories
-local auto_file_explorer -- Whether to automatically open file explorer  (default true) (boolean)
-local auto_cwd -- Whether to automatically change working directory (default true) (boolean)
-local file_explorer -- Which file explorer to open (netrw, nvim-tree, neo-tree)
-local file_explorer_config -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle }  -- Does NOT accept netrw
+local config = {
+    directories = {}, -- Absolute path directories to search in (default {}) (map)
+    oneoff_directories = {}, -- Absolute path to oneoff directories
+    auto_file_explorer = true, -- Whether to automatically open file explorer  (default true) (boolean)
+    auto_cwd = true, -- Whether to automatically change working directory (default true) (boolean)
+    file_explorer = "netrw", -- Which file explorer to open (netrw, nvim-tree, neo-tree)
+    file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
 
--- Telescope variables
-local theme_opts = { -- Theme Options table
-    results_title = false,
-    layout_strategy = "center",
-    previewer = false,
-    layout_config = {
-        --preview_cutoff = 1000,
-        height = 0.3,
-        width = 0.4,
-    },
-    sorting_strategy = "ascending",
-    border = true,
+    -- Telescope variables
+    -- Theme Options table
+    theme_opts = {
+        results_title = false,
+        layout_strategy = "center",
+        previewer = false,
+        layout_config = {
+            --preview_cutoff = 1000,
+            height =  0.3,
+            width = 0.4
+        },
+        sorting_strategy = "ascending",
+        border = true,
+    }
 }
+
+
 
 -- Whaler Main functions ---
 
@@ -99,7 +104,7 @@ M.get_entries = function(tbl_dir, find_subdirectories)
     return tbl_entries
 end
 
-M.dirs = function()
+M.dirs = function(directories, oneoff_directories)
     local hd = directories or {}
     local oneoff_hd = oneoff_directories or {}
 
@@ -116,10 +121,11 @@ M.dirs = function()
     return subdirs
 end
 
-M.whaler = function(opts)
-    opts = vim.tbl_deep_extend("force", theme_opts, opts or {})
+M.whaler = function(conf)
+    local run_config = vim.tbl_deep_extend("force", config, conf or {})
+    local opts = run_config.theme_opts or {}
 
-    local dirs = M.dirs() or {}
+    local dirs = M.dirs(run_config.directories, run_config.oneoff_directories) or {}
 
     local format_entry = function(entry)
         if entry.alias then
@@ -134,82 +140,73 @@ M.whaler = function(opts)
         end
     end
 
-    _pickers
-        .new(opts, {
-            prompt_title = "Whaler",
-            finder = _finders.new_table {
-                results = dirs,
-                entry_maker = function(entry)
-                    return {
-                        path = entry.path,
-                        alias = entry.alias,
-                        ordinal = format_entry(entry),
-                        display = format_entry(entry),
-                    }
-                end,
-            },
-            sorter = _conf.generic_sorter(opts),
-            previewer = _conf.file_previewer(opts),
-            attach_mappings = function(prompt_bufnr, map)
-                _actions.select_default:replace(function()
-                    _actions.close(prompt_bufnr)
-                    local selection = _action_state.get_selected_entry()
-                    if selection then
-                        -- Change current directory
-                        if auto_cwd then
-                            vim.api.nvim_set_current_dir(selection.path)
-                        end
-
-                        if auto_file_explorer then
-                            -- Command to open netrw
-                            local cmd = vim.api.nvim_parse_cmd(
-                                file_explorer_config["command"]
-                                    .. file_explorer_config["prefix_dir"]
-                                    .. selection.path,
-                                {}
-                            )
-                            -- Execute command
-                            vim.api.nvim_cmd(cmd, {})
-                        end
-                    end
-                end)
-                return true
+    _pickers.new(opts, {
+        prompt_title = "Whaler",
+        finder = _finders.new_table{
+            results = dirs,
+            entry_maker = function(entry)
+                return {
+                    path = entry.path,
+                    alias=entry.alias,
+                    ordinal = format_entry(entry),
+                    display = format_entry(entry),
+                }
             end,
-        })
+        },
+        sorter = _conf.generic_sorter(opts),
+        previewer = _conf.file_previewer(opts),
+        attach_mappings = function(prompt_bufnr, map)
+            _actions.select_default:replace(function()
+                _actions.close(prompt_bufnr)
+                local selection = _action_state.get_selected_entry()
+                if selection then
+                    -- Change current directory
+                    if run_config.auto_cwd then
+                        vim.api.nvim_set_current_dir(selection.path)
+                    end
+
+                    if run_config.auto_file_explorer then
+                        -- Command to open netrw
+                        local cmd = vim.api.nvim_parse_cmd(
+                                        run_config.file_explorer_config["command"]
+                                        .. run_config.file_explorer_config["prefix_dir"]
+                                        .. selection.path,{}
+                                        )
+                        -- Execute command
+                        vim.api.nvim_cmd(cmd, {})
+                    end
+                end
+                return true
+            end)
+        end})
         :find()
 end
 
 M.setup = function(setup_config)
     if setup_config.theme and setup_config.theme ~= "" then
         -- theme_opts = _themes["get_" .. setup_config.theme]()
-        theme_opts =
-            vim.tbl_deep_extend("force", theme_opts, setup_config.theme or {})
+        config = vim.tbl_deep_extend("force", config, setup_config or {})
     end
 
-    directories = setup_config.directories or {} -- No directories by default
-    oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default
+    config.directories = setup_config.directories or {} -- No directories by default
+    config.oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default
 
     -- Open file explorer is true by default
-    if setup_config.auto_file_explorer == nil then
-        auto_file_explorer = true
-    else
-        auto_file_explorer = setup_config.auto_file_explorer
+    if setup_config.auto_file_explorer ~= nil then
+        config.auto_file_explorer = setup_config.auto_file_explorer
     end
 
     -- Change directory is true by default
-    if setup_config.auto_cwd == nil then
-        auto_cwd = true
-    else
-        auto_cwd = setup_config.auto_cwd
+    if setup_config.auto_cwd ~= nil then
+        config.auto_cwd = setup_config.auto_cwd
     end
 
-    file_explorer = setup_config.file_explorer or "netrw" -- netrw by default
-    file_explorer_config = setup_config.file_explorer_config
-        or _filex.create_config(file_explorer)
+    config.file_explorer = setup_config.file_explorer or "netrw" -- netrw by default
+    config.file_explorer_config = setup_config.file_explorer_config or _filex.create_config(config.file_explorer)
 
     -- If file_explorer_config is not valid use netrw as fallback
-    if not _filex.check_config(file_explorer_config) then
-        file_explorer_config = _filex.create_config "netrw"
+    if not _filex.check_config(config.file_explorer_config) then
+        config.file_explorer_config = _filex.create_config("netrw")
     end
 end
 
