@@ -78,7 +78,8 @@ telescope.load_extension("whaler")
 vim.keymap.set("n", "<leader>fw", function()
     local w = telescope.extensions.whaler.whaler
     w({
-        -- Settings can also be called here
+        -- Settings can also be called here.
+        -- These would use but not change the setup configuration.
     })
  end,)
 
@@ -166,6 +167,55 @@ whaler = {
 ```
 Imaging you are starting a new project called **harp** inside your work path (`"/home/user/work"`). This new project it is similar to another already developed project called **Wheel** but with some fundamental changes. You want to compare the starting files side by side. You can enter the **harp** project and open the starting file. Then execute `Whaler.nvim` with the previous configuration setup and select the **Wheel** project. Notice that nothing really changed. But if you now find files in the current directory using `Telescope find_files` it would display ALL the **Wheel** files available. You can then open the desired file in a vertical split (default to `<C-v>` ) and keep modifying the main file in the **harp** project having the developed main **Wheel** side by side.
 
+
+#### Multiple Whaler use cases
+
+Let's say you want to search for a file in another directory but don't want to change directories again. Whaler can multiple configuration directly. 
+The setup dictates the defaults of how Whaler would behave if nothing is passed when executed.
+```lua
+-- Setup whaler
+whaler = {
+    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } },
+    oneoff_directories = { "/home/user/.config/nvim" }, 
+    auto_file_explorer = true, 
+    auto_cwd = true, 
+    file_explorer = "netrw",
+    theme = {                -- Telescope theme default Whaler options.
+        results_title = false,
+        layout_strategy = "center",
+        previewer = false,
+        layout_config = {
+            height =  0.3,
+            width = 0.4
+        },
+        sorting_strategy = "ascending",
+        border = true,
+    } 
+}
+```
+
+Now, we configure the keymaps and add a new keymap to run Whaler and instead of changing directories it will run `Telescope find_file`.
+```lua
+local keymap = vim.keymap
+keymap.set("n", "<leader>ww", telescope.extensions.whaler.whaler)
+keymap.set("n", "<leader>wn", function()
+        local w = telescope.extensions.whaler.whaler
+        w({
+            auto_file_explorer = true,
+            auto_cwd = false,
+            file_explorer_config = {
+            plugin_name = "telescope",
+            command = "Telescope find_files",
+            prefix_dir = " cwd=",
+            },
+            theme = {
+            previewer = false,
+            },
+            })
+        end)
+        
+```
+Pressing `<leader>ww` would run Whaler with the setup previously configured, running netrw and changing directories. On the other hand, pressing `<leader>wn` would run Whaler with the new configuration, without changing directories and running `Telescope find_files` in the selected directory.
 
 ## Supported File Explorers
 
