@@ -176,9 +176,10 @@ M.whaler = function(conf)
                         vim.api.nvim_cmd(cmd, {})
                     end
                 end
-                return true
             end)
-        end})
+            return true
+            end,
+        })
         :find()
 end
 
