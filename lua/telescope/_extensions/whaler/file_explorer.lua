@@ -2,7 +2,7 @@
 local _api = vim.api
 
 -- Logging
-local log = require("plenary.log")
+local log = require "plenary.log"
 
 -- Whaler File explorer module
 local M = {}
@@ -26,7 +26,7 @@ local FILEX_ENUM = {
         command = "NvimTreeOpen",
         prefix_dir = " ",
     },
-    neotree= {
+    neotree = {
         -- Works out of the box.
         plugin_name = "neo-tree",
         command = "Neotree",
@@ -51,26 +51,31 @@ M.check_config = function(config)
 
     -- Check if keys exist [ plugin_name, command ]
     if config["plugin_name"] == nil then
-        log.warn("Plugin name is not present in file_explorer_config")
+        log.warn "Plugin name is not present in file_explorer_config"
         return false
     end
 
     if config["plugin_name"] ~= "netrw" then
-        local has_plug,_ = pcall(require, config["plugin_name"])
+        local has_plug, _ = pcall(require, config["plugin_name"])
         if not has_plug then
-            log.warn(config["plugin_name"].." is not installed. Please install it before using it.")
+            log.warn(
+                config["plugin_name"]
+                    .. " is not installed. Please install it before using it."
+            )
             return false
         end
     end
 
     if config["command"] == nil then
-        log.warn("Command is not present in file_explorer_config. It is used to toggle or activate the file explorer")
+        log.warn "Command is not present in file_explorer_config. It is used to toggle or activate the file explorer"
         return false
     end
     -- TODO: Check why Explore is not by default in the nvim_get_commands() function. Is it because of Lazy?
-    local nvim_cmds = _api.nvim_get_commands({})
-    if nvim_cmds[config["command"]] == nil  and false then
-        log.warn("Command ".. config["command"] .. " is not a valid nvim command")
+    local nvim_cmds = _api.nvim_get_commands {}
+    if nvim_cmds[config["command"]] == nil and false then
+        log.warn(
+            "Command " .. config["command"] .. " is not a valid nvim command"
+        )
         return true
     end
 
@@ -84,9 +89,12 @@ M.check_config = function(config)
 end
 
 M.create_config = function(file_explorer)
-
     if FILEX_ENUM[file_explorer] == nil then
-        log.error("Option " .. file_explorer .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' | 'telescope_file_browser' \n")
+        log.error(
+            "Option "
+                .. file_explorer
+                .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' | 'telescope_file_browser' \n"
+        )
         return {}
     end
 
