@@ -243,4 +243,8 @@ You can find more telescope extensions in the [Telescope Extensions Wiki](https:
 
 If you use or prefer any other let me know and I'll add them here.
 
+## Credits
+Shoutouts to all the great contributrs actively working on `Whaler.nvim` that helped shape the plugin.
+- [GCBallesteros](https://github.com/GCBallesteros) - for constantly suggesting and developing Whaler. 
+
 
