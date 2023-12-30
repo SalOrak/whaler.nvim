@@ -101,13 +101,14 @@ Whaler supports a few configuration options.
 Here is the list of a default configuration:
 ```lua
 whaler = {
-    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, -- Absolute path directories to search. By default the list is empty.
-    oneoff_directories = { "/home/user/.config/nvim" }, -- Absolute path directories to append directly to list of projects. By default is empty. 
+    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, -- Path directories to search. By default the list is empty.
+    oneoff_directories = { "/home/user/.config/nvim" }, -- Path directories to append directly to list of projects. By default is empty. 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
                              -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser".
     file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
+    hidden = false, -- Show hidden directories or not (default false)
                              -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.
@@ -160,7 +161,7 @@ I'll be adding more but if you have any special use case please let me know and 
 Using the following **setup**:
 ```lua
 whaler = {
-    directories = { "/home/user/work" }, 
+    directories = { "~/work" }, 
     auto_file_explorer = false, -- Do not open file explorer
     auto_cwd = true, -- But change working directory
 }

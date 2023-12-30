@@ -65,6 +65,9 @@ telescope.setup({
     extensions = {
         whaler = {
             -- Whaler configuration
+            directories = { "path/to/dir", "path/to/another/dir", { path = "path/to/yet/another/dir", alias = "yet" } },
+            -- You may also add directories that will not be searched for subdirectories
+            oneoff_directories = { "path/to/project/folder",  { path = "path/to/another/project", alias = "Project Z" } },
         }
     }
 })
@@ -76,7 +79,8 @@ telescope.load_extension("whaler")
 vim.keymap.set("n", "<leader>fw", function()
     local w = telescope.extensions.whaler.whaler
     w({
-        -- Telescope theme settings here
+        -- Settings can also be called here.
+        -- These would use but not change the setup configuration.
     })
  end,)
 
@@ -91,6 +95,8 @@ parameters above one may also choose to use tables such as
 presented in the selection UI to show `[Personal Projects] theproject` instead
 of the full path to each of the project folders.
 
+Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
+
 ==============================================================================
  4. CUSTOMIZATION                                     *whaler-customization*
 
@@ -99,16 +105,14 @@ Here is the list of a default configuration:
 
 ```lua
 whaler = {
-    -- Absolute path directories to search. By default the list is empty. A folder path may be
-    directories = { "/home/user/projects", "/home/user/work" }, 
-    -- You may also add directories that will not be searched for subdirectories
-    oneoff_directories = { "/home/user/path/to/project" },
-
+    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, -- Path directories to search. By default the list is empty.
+    oneoff_directories = { "/home/user/.config/nvim" }, -- Path directories to append directly to list of projects. By default is empty. 
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
                              -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser".
     file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
+    hidden = false, -- Show hidden directories or not (default false)
                              -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.
@@ -131,6 +135,7 @@ whaler = {
     } 
 }
 ```
+
 By default `Whaler.nvim` changes the current working directory (*cwd*) to the selected directory AND opens the file explorer (`netrw` by default). 
 
 Changing `auto_cwd` to `false` will make Whaler to only open the file explorer in the selected directory while maintaining the previous current working directory.

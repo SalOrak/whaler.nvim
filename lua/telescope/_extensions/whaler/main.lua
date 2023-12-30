@@ -6,6 +6,10 @@ local _themes = require "telescope.themes"
 local _action_state = require "telescope.actions.state"
 local _conf = require("telescope.config").values
 
+-- Plenary helpers
+local _path = require "plenary.path"
+local _scan = require "plenary.scandir"
+
 -- Logging
 local log = require "plenary.log"
 
@@ -27,6 +31,7 @@ local config = {
     auto_cwd = true, -- Whether to automatically change working directory (default true) (boolean)
     file_explorer = "netrw", -- Which file explorer to open (netrw, nvim-tree, neo-tree)
     file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
+    hidden = false, -- Append hidden directories or not. (default false)
 
     -- Telescope variables
     -- Theme Options table
@@ -47,27 +52,27 @@ local config = {
 
 
 -- Whaler Main functions ---
-
 M.get_subdir = function(dir)
-    -- Get all subdirectories from a directory
-    dir = dir or {}
+    dir = _utils.parse_directory(dir)
+    local d = _path.new(_path.expand(_path.new(dir)))
 
-    if _fn.isdirectory(dir) == 0 then
+    if not _path.exists(d) then
         log.warn("Directory " .. dir .. " is not a valid directory")
         return {}
     end
 
-    local tbl_dir = {}
+    local tbl_sub = _scan.scan_dir(_path.expand(d), {
+        hidden = config.hidden,
+        depth = 1,
+        only_dirs = true
+    })
 
-    for _, v in pairs(_fn.readdir(dir)) do
-        local entry = dir .. "/" .. v
-        if _fn.isdirectory(entry) == 1 then
-            local parsed_dir = _utils.parse_directory(entry)
-            tbl_dir[#tbl_dir + 1] = parsed_dir
-        end
+    local tbl_dir = {}
+    for _,v in pairs(tbl_sub) do
+        tbl_dir[#tbl_dir + 1] = v
     end
 
-    return tbl_dir
+    return  tbl_dir
 end
 
 M.get_entries = function(tbl_dir, find_subdirectories)
