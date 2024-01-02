@@ -35,7 +35,7 @@ local config = {
 
     -- Telescope variables
     -- Theme Options table
-    theme_opts = {
+    theme = {
         results_title = false,
         layout_strategy = "center",
         previewer = false,
@@ -128,7 +128,7 @@ end
 
 M.whaler = function(conf)
     local run_config = vim.tbl_deep_extend("force", config, conf or {})
-    local opts = run_config.theme_opts or {}
+    local opts = run_config.theme or {}
 
     local dirs = M.dirs(run_config.directories, run_config.oneoff_directories) or {}
 
@@ -151,8 +151,8 @@ M.whaler = function(conf)
             results = dirs,
             entry_maker = function(entry)
                 return {
-                    path = entry.path,
-                    alias=entry.alias,
+                    path  = entry.path,
+                    alias = entry.alias,
                     ordinal = format_entry(entry),
                     display = format_entry(entry),
                 }
@@ -189,8 +189,7 @@ M.whaler = function(conf)
 end
 
 M.setup = function(setup_config)
-    if setup_config.theme and setup_config.theme ~= "" then
-        -- theme_opts = _themes["get_" .. setup_config.theme]()
+    if setup_config and setup_config == "" then
         config = vim.tbl_deep_extend("force", config, setup_config or {})
     end
 
