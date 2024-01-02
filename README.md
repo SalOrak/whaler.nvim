@@ -119,7 +119,7 @@ whaler = {
                               -- By default is " " (space)
     },
     theme = {                -- Telescope theme default Whaler options.
-        results_title = false,
+        results_title = false, -- Either `false` or a string. 
         layout_strategy = "center",
         previewer = false,
         layout_config = {
@@ -210,10 +210,10 @@ keymap.set("n", "<leader>wn", function()
             prefix_dir = " cwd=",
             },
             theme = {
-            previewer = false,
+                previewer = false,
             },
-            })
-        end)
+        })
+    end)
         
 ```
 Pressing `<leader>ww` would run Whaler with the setup previously configured, running netrw and changing directories. On the other hand, pressing `<leader>wn` would run Whaler with the new configuration, without changing directories and running `Telescope find_files` in the selected directory.
