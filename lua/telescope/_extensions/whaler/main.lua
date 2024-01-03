@@ -189,7 +189,7 @@ M.whaler = function(conf)
 end
 
 M.setup = function(setup_config)
-    if setup_config and setup_config == "" then
+    if setup_config and setup_config ~= "" then
         config = vim.tbl_deep_extend("force", config, setup_config or {})
     end
 
