@@ -8,7 +8,8 @@ local _conf = require("telescope.config").values
 
 -- Plenary helpers
 local _path = require "plenary.path"
-local _scan = require "plenary.scandir"
+-- local _scan = require "plenary.scandir" -- Whilst in PR
+local _scan = require "telescope._extensions.whaler.scandir"
 
 -- Logging
 local log = require "plenary.log"
@@ -32,6 +33,7 @@ local config = {
     file_explorer = "netrw", -- Which file explorer to open (netrw, nvim-tree, neo-tree)
     file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
     hidden = false, -- Append hidden directories or not. (default false)
+    links = false, -- Append linked directories or not. (default false)
 
     -- Telescope variables
     -- Theme Options table
@@ -64,7 +66,8 @@ M.get_subdir = function(dir)
     local tbl_sub = _scan.scan_dir(_path.expand(d), {
         hidden = config.hidden,
         depth = 1,
-        only_dirs = true
+        only_dirs = true,
+	links = config.links
     })
 
     local tbl_dir = {}
