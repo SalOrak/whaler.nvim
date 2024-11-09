@@ -130,6 +130,19 @@ M.whaler = function(conf)
     local run_config = vim.tbl_deep_extend("force", config, conf or {})
     local opts = run_config.theme or {}
 
+    -- Check and genarete configuration on the fly
+    if run_config.file_explorer == nil then
+       if run_config.file_explorer_config == nil or
+          _filex.check_config(run_config.file_explorer_config) == nil then
+          run_config.file_explorer_config = _filex.create_config("netrw")
+       end
+    elseif not _filex.check_config(run_config.file_explorer_config) then
+       run_config.file_explorer_config = _filex.create_config(run_config.file_explorer) or {}
+       if not _filex.check_config(run_config.file_explorer_config) then
+          run_config.file_explorer_config = _filex.create_config("netrw")
+       end
+    end
+    
     local dirs = M.dirs(run_config.directories, run_config.oneoff_directories) or {}
 
     local format_entry = function(entry)
