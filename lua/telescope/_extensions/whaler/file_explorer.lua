@@ -61,7 +61,7 @@ M.check_config = function(config)
         return false
     end
 
-    if config["plugin_name"] ~= "netrw" then
+    if config["plugin_name"] ~= "netrw" and config["plugin_name"] ~= "rnvimr" then
         local has_plug, _ = pcall(require, config["plugin_name"])
         if not has_plug then
             log.warn(
