@@ -230,8 +230,6 @@ Currently the following file explorers are supported out of the box:
 
 ```lua
 -- Setup rnvimr
-vim.g.rnvimr_enable_ex = 1
-
 vim.api.nvim_create_user_command("RnvimrOpen", function(args)
     if #args.fargs == 1 then
        local arg = vim.fn.expand(args.fargs[1])

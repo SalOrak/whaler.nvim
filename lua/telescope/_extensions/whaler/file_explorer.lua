@@ -61,8 +61,7 @@ M.check_config = function(config)
         return false
     end
 
-	-- stylua: ignore
-    if config["plugin_name"] ~= "netrw" and config["plugin_name"] ~= "rnvimr" then
+    if config["plugin_name"] ~= "netrw" then
         local has_plug, _ = pcall(require, config["plugin_name"])
         if not has_plug then
             log.warn(
