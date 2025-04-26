@@ -106,9 +106,9 @@ whaler = {
     auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
     auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
     file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
-                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser".
+                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
     file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
-    hidden = false, -- Show hidden directories or not (default false)
+        hidden = false, -- Show hidden directories or not (default false)
                              -- For basic configuration this is done automatically setting up the file_explorer config.
         plugin_name = "netrw", -- Plugin. Should be installed.
         command = "Explorer", -- The plugin command to open.

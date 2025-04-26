@@ -61,6 +61,7 @@ M.check_config = function(config)
         return false
     end
 
+    -- netrw and rnvimr are not "lua" plugins
     if config["plugin_name"] ~= "netrw" and config["plugin_name"] ~= "rnvimr" then
         local has_plug, _ = pcall(require, config["plugin_name"])
         if not has_plug then
@@ -99,7 +100,8 @@ M.create_config = function(file_explorer)
         log.error(
             "Option "
                 .. file_explorer
-                .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' | 'telescope_file_browser' \n"
+                .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' |"
+                .. "'telescope_file_browser' | 'oil' | 'rnvimr' \n"
         )
         return {}
     end
