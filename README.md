@@ -226,7 +226,7 @@ Currently the following file explorers are supported out of the box:
 - [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
 - [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua). To work as intended add `sync_root_with_cwd = true` in the `nvim-tree` setup function.
 - [Telescope-file-browser](https://github.com/nvim-telescope/telescope-file-browser.nvim). Does not require any configuration.
-- [rnvimr](https://github.com/kevinhwang91/rnvimr). To work as intended add the following code to the `rnvimr` settings file and add the `file_explorer = "rnvimr"` in the `whaler` configuration block.
+- [rnvimr](https://github.com/kevinhwang91/rnvimr). To work as intended add the following code to the `rnvimr` settings file and add the `file_explorer = "rnvimr"` in the `whaler` configuration block. If the ranger window seems "buggy" get into insert mode `i` and it should work as usual.
 
 ```lua
 -- Setup rnvimr
