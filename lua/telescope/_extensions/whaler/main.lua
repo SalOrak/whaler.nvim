@@ -21,7 +21,17 @@ local _utils = require "telescope._extensions.whaler.utils"
 local _filex = require "telescope._extensions.whaler.file_explorer"
 
 -- Whaler
-local M = {}
+
+
+---@field state table Represents the current state of Whaler. 
+local M = {
+    ---@field path string? Path representing the CWD and Whaler project.
+    ---@field display string? Display string shown instead of path
+    state = {
+        path = vim.loop.cwd(),
+        display = "",
+    }
+}
 
 -- Whaler variables (on setup)
 local config = {
@@ -124,11 +134,52 @@ M.dirs = function(directories, oneoff_directories)
     return subdirs
 end
 
+--- Switches to another path, changing the current whaler state
+--- It fires user events.
+--- First event just before changing to the new path it fires the `WhalerPreSwitch` 
+--- event whose data include the current state and the new one.
+--- After changing to the new path it fires `WhalerPostSwitch` event.
+---@param path string? String path representing the new path to switch to
+---@param display string? Display string to show instead of the path. If nil it
+---generates it from the `path`
+M.switch = function(path, display) 
+
+    vim.api.nvim_exec_autocmds("User", {
+        pattern = "WhalerPreSwitch",
+        data = {
+            from = M.state,
+            to = {
+                path = path,
+                display = display,
+            }
+        }
+    })
+
+    -- TODO: Manage errors in case path does not exist.
+    vim.api.nvim_set_current_dir(path)
+
+    M.state.path = path
+    -- TODO: Create a display based on the path in case it is nil. Maybe accept
+    -- a user input function to create the display based on the path.
+    M.state.display = display
+
+    vim.api.nvim_exec_autocmds("User", {
+        pattern = "WhalerPostSwitch",
+        data = {
+            path = path,
+            display = display,
+        }
+    })
+
+
+end
+
 M.whaler = function(conf)
     local run_config = vim.tbl_deep_extend("force", config, conf or {})
     local opts = run_config.theme or {}
 
-    local dirs = M.dirs(run_config.directories, run_config.oneoff_directories) or {}
+    local dirs = M.dirs(run_config.directories, run_config.oneoff_directories)
+        or {}
 
     local format_entry = function(entry)
         if entry.alias then
