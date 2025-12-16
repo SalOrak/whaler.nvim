@@ -93,12 +93,15 @@ M.check_config = function(config)
 end
 
 M.create_config = function(file_explorer)
+    local valid_options = string.format("'%s'\n",
+        vim.fn.join(vim.tbl_keys(FILEX_ENUM), "' | '"))
+
     if FILEX_ENUM[file_explorer] == nil then
         log.error(
             "Option "
                 .. file_explorer
-                .. " not valid. Choose one 'netrw' | 'nvimtree' | 'neotree' |"
-                .. "'telescope_file_browser' | 'oil' | 'rnvimr' \n"
+                .. " not valid. Choose one: "
+                .. valid_options
         )
         return {}
     end
