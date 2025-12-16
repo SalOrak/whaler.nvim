@@ -10,5 +10,6 @@ return telescope.register_extension {
     setup = whaler.setup,
     exports = {
         whaler = whaler.whaler,
+        switch = whaler.switch,
     },
 }

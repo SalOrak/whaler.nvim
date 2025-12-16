@@ -10,7 +10,8 @@ CONTENTS
   2. Quickstart                               |whaler-quickstart|
   3. Usage                                    |whaler-usage|
   4. Customization                            |whaler-customization|
-  5. Supported file explorer                  |whaler-supported-file-explorers|
+  5. User events                              |whaler-user-events|
+  6. Supported file explorer                  |whaler-supported-file-explorers|
 
 ==============================================================================
  1. INTRODUCTION                                      *whaler-introduction*
@@ -155,9 +156,59 @@ whaler = {
     },
 }
 ```
+==============================================================================
+ 5. WHALER USER EVENTS                                     *whaler-user-events*
+
+ Whaler fires user events in different stages. These are the following:
+
+ - `WhalerPreSwitch`: Fires before switching to another directory. Contains the
+   current state, both path and display, as well as the new one.
+ - `WhalerPostSwitch`: Fires after switching to the selected directory.Contains  
+   the current (new) state, both the path and display.
+ - `WhalerPre`: Fires before opening the picker and after generating all the
+   projects based on the configuration. Contains the table of projects with paths 
+   and their display name.
+ - `WhalerPost`: Fires after succesfully selecting a project to act on. Returns
+   the full command executed and the new state (path and display name).
+
+
+For example, let's say we want to open a new tmux window after entering a new project
+but making sure to delete the previous one. We could do like this:
+
+```lua
+-- Is this self promotion? Probably. Check it out.
+local tmux = require'libtmux'
+
+local augroup = vim.api.nvim_create_augroup('whalertmux', {clear = true})
+
+vim.api.nvim_create_autocmd('User', {
+	pattern = 'WhalerPreSwitch',
+    group  = augroup,
+	callback = function(data)
+        local to = data.data.to
+        local from = data.data.from
+
+        -- If we switch to a different project we kill the previous
+        -- tmux window
+        if from ~= to then
+            tmux:kill_window({
+                window = from.path
+            })
+        end
+
+        -- Let's create the window using the path as the name
+        tmux:new_window({
+            name = to.path,
+            and_select = false,
+        })
+
+	end,
+})
+```
+
 
 ==============================================================================
- 5. SUPPORTED FILE EXPLORERS                         *whaler-supported-file-explorers*
+ 6. SUPPORTED FILE EXPLORERS                         *whaler-supported-file-explorers*
 
 Currently the following file explorers are supported out of the box:
 - [netrw](): Default and fallback option.
