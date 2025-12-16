@@ -41,15 +41,13 @@ local config = {
         previewer = false,
         layout_config = {
             --preview_cutoff = 1000,
-            height =  0.3,
-            width = 0.4
+            height = 0.3,
+            width = 0.4,
         },
         sorting_strategy = "ascending",
         border = true,
-    }
+    },
 }
-
-
 
 -- Whaler Main functions ---
 M.get_subdir = function(dir)
@@ -64,15 +62,15 @@ M.get_subdir = function(dir)
     local tbl_sub = _scan.scan_dir(_path.expand(d), {
         hidden = config.hidden,
         depth = 1,
-        only_dirs = true
+        only_dirs = true,
     })
 
     local tbl_dir = {}
-    for _,v in pairs(tbl_sub) do
+    for _, v in pairs(tbl_sub) do
         tbl_dir[#tbl_dir + 1] = v
     end
 
-    return  tbl_dir
+    return tbl_dir
 end
 
 M.get_entries = function(tbl_dir, find_subdirectories)
@@ -145,44 +143,46 @@ M.whaler = function(conf)
         end
     end
 
-    _pickers.new(opts, {
-        prompt_title = "Whaler",
-        finder = _finders.new_table{
-            results = dirs,
-            entry_maker = function(entry)
-                return {
-                    path  = entry.path,
-                    alias = entry.alias,
-                    ordinal = format_entry(entry),
-                    display = format_entry(entry),
-                }
-            end,
-        },
-        sorter = _conf.generic_sorter(opts),
-        previewer = _conf.file_previewer(opts),
-        attach_mappings = function(prompt_bufnr, map)
-            _actions.select_default:replace(function()
-                _actions.close(prompt_bufnr)
-                local selection = _action_state.get_selected_entry()
-                if selection then
-                    -- Change current directory
-                    if run_config.auto_cwd then
-                        vim.api.nvim_set_current_dir(selection.path)
-                    end
+    _pickers
+        .new(opts, {
+            prompt_title = "Whaler",
+            finder = _finders.new_table {
+                results = dirs,
+                entry_maker = function(entry)
+                    return {
+                        path = entry.path,
+                        alias = entry.alias,
+                        ordinal = format_entry(entry),
+                        display = format_entry(entry),
+                    }
+                end,
+            },
+            sorter = _conf.generic_sorter(opts),
+            previewer = _conf.file_previewer(opts),
+            attach_mappings = function(prompt_bufnr, map)
+                _actions.select_default:replace(function()
+                    _actions.close(prompt_bufnr)
+                    local selection = _action_state.get_selected_entry()
+                    if selection then
+                        -- Change current directory
+                        if run_config.auto_cwd then
+                            vim.api.nvim_set_current_dir(selection.path)
+                        end
 
-                    if run_config.auto_file_explorer then
-                        -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(
-                                        run_config.file_explorer_config["command"]
-                                        .. run_config.file_explorer_config["prefix_dir"]
-                                        .. selection.path,{}
-                                        )
-                        -- Execute command
-                        vim.api.nvim_cmd(cmd, {})
+                        if run_config.auto_file_explorer then
+                            -- Command to open netrw
+                            local cmd = vim.api.nvim_parse_cmd(
+                                run_config.file_explorer_config["command"]
+                                    .. run_config.file_explorer_config["prefix_dir"]
+                                    .. selection.path,
+                                {}
+                            )
+                            -- Execute command
+                            vim.api.nvim_cmd(cmd, {})
+                        end
                     end
-                end
-            end)
-            return true
+                end)
+                return true
             end,
         })
         :find()
@@ -207,11 +207,12 @@ M.setup = function(setup_config)
     end
 
     config.file_explorer = setup_config.file_explorer or "netrw" -- netrw by default
-    config.file_explorer_config = setup_config.file_explorer_config or _filex.create_config(config.file_explorer)
+    config.file_explorer_config = setup_config.file_explorer_config
+        or _filex.create_config(config.file_explorer)
 
     -- If file_explorer_config is not valid use netrw as fallback
     if not _filex.check_config(config.file_explorer_config) then
-        config.file_explorer_config = _filex.create_config("netrw")
+        config.file_explorer_config = _filex.create_config "netrw"
     end
 end
 
