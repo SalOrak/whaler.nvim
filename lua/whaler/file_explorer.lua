@@ -1,6 +1,3 @@
--- Vim API
-local _api = vim.api
-
 -- Logging
 local log = require "plenary.log"
 
@@ -78,7 +75,7 @@ M.check_config = function(config)
         return false
     end
     -- TODO: Check why Explore is not by default in the nvim_get_commands() function. Is it because of Lazy?
-    local nvim_cmds = _api.nvim_get_commands {}
+    local nvim_cmds = vim.api.nvim_get_commands {}
     if nvim_cmds[config["command"]] == nil and false then
         log.warn(
             "Command " .. config["command"] .. " is not a valid nvim command"

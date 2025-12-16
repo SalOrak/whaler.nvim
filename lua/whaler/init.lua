@@ -13,15 +13,11 @@ local _scan = require "plenary.scandir"
 -- Logging
 local log = require "plenary.log"
 
--- Vim modules
-local _fn = vim.fn
-
 -- Whaler modules
-local _utils = require "telescope._extensions.whaler.utils"
-local _filex = require "telescope._extensions.whaler.file_explorer"
+local _utils = require "whaler.utils"
+local _filex = require "whaler.file_explorer"
 
 -- Whaler
-
 
 ---@field state table Represents the current state of Whaler. 
 --- Use `M.switch()` function to change it. Don't change it manually. 
@@ -210,7 +206,7 @@ M.whaler = function(conf)
                 "["
                 .. entry.alias
                 .. "] "
-                .. _fn.fnamemodify(entry.path, ":t")
+                .. vim.fn.fnamemodify(entry.path, ":t")
             )
         else
             return entry.path
