@@ -217,7 +217,7 @@ M.whaler = function(conf)
                     if selection then
                         -- Change current directory
                         if run_config.auto_cwd then
-                            vim.api.nvim_set_current_dir(selection.path)
+                            M.switch(selection.path, selection.display)
                         end
 
                         if run_config.auto_file_explorer then
