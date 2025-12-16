@@ -34,11 +34,6 @@ local M = {
     }
 }
 
---- Whaler autocommand group. See `nvim_create_augroup`. 
-local whalerAuGroup = vim.api.nvim_create_augroup("WhalerAuGroup", {
-    clear = true
-})
-
 -- Whaler variables (on setup)
 local config = {
     directories = {}, -- Absolute path directories to search in (default {}) (map)
@@ -149,10 +144,8 @@ end
 ---@param display string? Display string to show instead of the path. If nil it
 ---generates it from the `path`
 M.switch = function(path, display) 
-
-    vim.api.nvim_exec_autocmds("User", {
-        pattern = "WhalerPreSwitch",
-        group = whalerAuGroup,
+    vim.api.nvim_exec_autocmds('User', {
+        pattern = 'WhalerPreSwitch',
         data = {
             from = M.state,
             to = {
@@ -172,7 +165,6 @@ M.switch = function(path, display)
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPostSwitch",
-        group = whalerAuGroup,
         data = {
             path = path,
             display = display,
@@ -200,7 +192,6 @@ M.whaler = function(conf)
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPre",
-        group = whalerAuGroup,
         data = {
             projects = dirs
         }
@@ -260,7 +251,6 @@ M.whaler = function(conf)
 
                         vim.api.nvim_exec_autocmds("User", {
                             pattern = "WhalerPost",
-                            group = whalerAuGroup,
                             data = {
                                 cmd = cmd,
                                 path = selection.path,
