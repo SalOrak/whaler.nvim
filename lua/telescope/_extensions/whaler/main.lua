@@ -171,8 +171,15 @@ M.switch = function(path, display)
         }
     })
 
-
 end
+
+--- Returns the current state values of Whaler. That is, the 
+--- path selected as well as the display name. It may be nil
+---@return {path: string?, display:string?} table Current state
+M.get_state = function()
+    return M.state
+end
+
 
 
 --- Main function. Generates the directories and subdirectories comprising the
