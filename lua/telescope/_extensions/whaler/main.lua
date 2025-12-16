@@ -24,6 +24,7 @@ local _filex = require "telescope._extensions.whaler.file_explorer"
 
 
 ---@field state table Represents the current state of Whaler. 
+--- Use `M.switch()` function to change it. Don't change it manually. 
 local M = {
     ---@field path string? Path representing the CWD and Whaler project.
     ---@field display string? Display string shown instead of path
@@ -32,6 +33,11 @@ local M = {
         display = "",
     }
 }
+
+--- Whaler autocommand group. See `nvim_create_augroup`. 
+local whalerAuGroup = vim.api.nvim_create_augroup("WhalerAuGroup", {
+    clear = true
+})
 
 -- Whaler variables (on setup)
 local config = {
@@ -146,6 +152,7 @@ M.switch = function(path, display)
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPreSwitch",
+        group = whalerAuGroup,
         data = {
             from = M.state,
             to = {
@@ -165,6 +172,7 @@ M.switch = function(path, display)
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPostSwitch",
+        group = whalerAuGroup,
         data = {
             path = path,
             display = display,
@@ -174,12 +182,29 @@ M.switch = function(path, display)
 
 end
 
+
+--- Main function. Generates the directories and subdirectories comprising the
+--- projects and executes a command on it. By default the command is a file
+--- explorer but it can be changed to any command.
+--- It fires the `WhalerPre` event just after generating the directories
+--- containing the table of projects.
+--- After selecting a project, it fires the `WhalerPost` event which contains
+--- the command executed after selecting the entry as well as the entry path and
+--- entry display name
 M.whaler = function(conf)
     local run_config = vim.tbl_deep_extend("force", config, conf or {})
     local opts = run_config.theme or {}
 
     local dirs = M.dirs(run_config.directories, run_config.oneoff_directories)
         or {}
+
+    vim.api.nvim_exec_autocmds("User", {
+        pattern = "WhalerPre",
+        group = whalerAuGroup,
+        data = {
+            projects = dirs
+        }
+    })
 
     local format_entry = function(entry)
         if entry.alias then
@@ -220,18 +245,30 @@ M.whaler = function(conf)
                             M.switch(selection.path, selection.display)
                         end
 
+                        -- Command to open netrw
+                        local cmd = vim.api.nvim_parse_cmd(
+                            run_config.file_explorer_config["command"]
+                            .. run_config.file_explorer_config["prefix_dir"]
+                            .. selection.path,
+                            {}
+                        )
+
                         if run_config.auto_file_explorer then
-                            -- Command to open netrw
-                            local cmd = vim.api.nvim_parse_cmd(
-                                run_config.file_explorer_config["command"]
-                                    .. run_config.file_explorer_config["prefix_dir"]
-                                    .. selection.path,
-                                {}
-                            )
                             -- Execute command
                             vim.api.nvim_cmd(cmd, {})
                         end
+
+                        vim.api.nvim_exec_autocmds("User", {
+                            pattern = "WhalerPost",
+                            group = whalerAuGroup,
+                            data = {
+                                cmd = cmd,
+                                path = selection.path,
+                                display = selection.display,
+                            }
+                        })
                     end
+
                 end)
                 return true
             end,
