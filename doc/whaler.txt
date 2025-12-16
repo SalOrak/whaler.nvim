@@ -1,4 +1,4 @@
-*whaler* Whaler.nvim
+*whaler.txt* Whaler.nvim
 
 Author: Sal O'Rak  <https://github.com/salorak> 
 License: MIT
