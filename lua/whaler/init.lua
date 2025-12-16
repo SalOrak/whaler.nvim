@@ -1,10 +1,4 @@
 -- Telescope modules
-local _pickers = require "telescope.pickers"
-local _finders = require "telescope.finders"
-local _actions = require "telescope.actions"
-local _themes = require "telescope.themes"
-local _action_state = require "telescope.actions.state"
-local _conf = require("telescope.config").values
 
 -- Plenary helpers
 local _path = require "plenary.path"
@@ -14,8 +8,9 @@ local _scan = require "plenary.scandir"
 local log = require "plenary.log"
 
 -- Whaler modules
-local _utils = require "whaler.utils"
-local _filex = require "whaler.file_explorer"
+local Utils = require "whaler.utils"
+local Filex = require "whaler.file_explorer"
+local Pickers = require'whaler.pickers'
 
 -- Whaler
 
@@ -40,6 +35,8 @@ local config = {
     file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
     hidden = false, -- Append hidden directories or not. (default false)
 
+    picker = "telescope",
+
     -- Telescope variables
     -- Theme Options table
     theme = {
@@ -58,7 +55,7 @@ local config = {
 
 -- Whaler Main functions ---
 M.get_subdir = function(dir)
-    dir = _utils.parse_directory(dir)
+    dir = Utils.parse_directory(dir)
     local d = _path.new(_path.expand(_path.new(dir)))
 
     if not _path.exists(d) then
@@ -123,7 +120,7 @@ M.dirs = function(directories, oneoff_directories)
 
     -- merge oneoff into subdirs
     for _, oneoff in ipairs(oneoff_dirs) do
-        local parsed_oneoff = _utils.parse_directory(oneoff.path) -- Remove any / at the end.
+        local parsed_oneoff = Utils.parse_directory(oneoff.path) -- Remove any / at the end.
         oneoff.path = parsed_oneoff
         subdirs[#subdirs + 1] = oneoff
     end
@@ -177,6 +174,39 @@ M.get_state = function()
 end
 
 
+--- Core functionality used after selecting a project.
+--- Common to all pickers. It fires `WhalerPost` user event.
+---@param path string Path to change to.
+---@param display string? Display name of the path.
+---@param opts table Options table
+M.select = function(path, display, opts)
+
+    if opts.auto_cwd then
+        M.switch(path, display)
+    end
+
+    -- File explorer / Command to be executed
+    local cmd = vim.api.nvim_parse_cmd(
+        opts.file_explorer_config["command"]
+        .. opts.file_explorer_config["prefix_dir"]
+        .. path,
+        {}
+    )
+
+    if opts.auto_file_explorer then
+        -- Execute command
+        vim.api.nvim_cmd(cmd, {})
+    end
+
+    vim.api.nvim_exec_autocmds("User", {
+        pattern = "WhalerPost",
+        data = {
+            cmd = cmd,
+            path = path,
+            display = display,
+        }
+    })
+end
 
 --- Main function. Generates the directories and subdirectories comprising the
 --- projects and executes a command on it. By default the command is a file
@@ -186,12 +216,11 @@ end
 --- After selecting a project, it fires the `WhalerPost` event which contains
 --- the command executed after selecting the entry as well as the entry path and
 --- entry display name
-M.whaler = function(conf)
-    local run_config = vim.tbl_deep_extend("force", config, conf or {})
-    local opts = run_config.theme or {}
+M.whaler = function(run_opts)
+    local run_opts = vim.tbl_deep_extend("force", config, run_opts or {})
 
-    local dirs = M.dirs(run_config.directories, run_config.oneoff_directories)
-        or {}
+    local dirs = M.dirs(run_opts.directories, run_opts.oneoff_directories)
+    or {}
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPre",
@@ -200,73 +229,15 @@ M.whaler = function(conf)
         }
     })
 
-    local format_entry = function(entry)
-        if entry.alias then
-            return (
-                "["
-                .. entry.alias
-                .. "] "
-                .. vim.fn.fnamemodify(entry.path, ":t")
-            )
-        else
-            return entry.path
-        end
+    local picker = Pickers.get_picker(run_opts.picker)
+
+    if picker == nil then
+        --- TODO: Notify an error to the user
+        return
     end
 
-    _pickers
-        .new(opts, {
-            prompt_title = "Whaler",
-            finder = _finders.new_table {
-                results = dirs,
-                entry_maker = function(entry)
-                    return {
-                        path = entry.path,
-                        alias = entry.alias,
-                        ordinal = format_entry(entry),
-                        display = format_entry(entry),
-                    }
-                end,
-            },
-            sorter = _conf.generic_sorter(opts),
-            previewer = _conf.file_previewer(opts),
-            attach_mappings = function(prompt_bufnr, map)
-                _actions.select_default:replace(function()
-                    _actions.close(prompt_bufnr)
-                    local selection = _action_state.get_selected_entry()
-                    if selection then
-                        -- Change current directory
-                        if run_config.auto_cwd then
-                            M.switch(selection.path, selection.display)
-                        end
+    picker(dirs, run_opts)
 
-                        -- Command to open netrw
-                        local cmd = vim.api.nvim_parse_cmd(
-                            run_config.file_explorer_config["command"]
-                            .. run_config.file_explorer_config["prefix_dir"]
-                            .. selection.path,
-                            {}
-                        )
-
-                        if run_config.auto_file_explorer then
-                            -- Execute command
-                            vim.api.nvim_cmd(cmd, {})
-                        end
-
-                        vim.api.nvim_exec_autocmds("User", {
-                            pattern = "WhalerPost",
-                            data = {
-                                cmd = cmd,
-                                path = selection.path,
-                                display = selection.display,
-                            }
-                        })
-                    end
-
-                end)
-                return true
-            end,
-        })
-        :find()
 end
 
 M.setup = function(setup_config)
@@ -289,12 +260,18 @@ M.setup = function(setup_config)
 
     config.file_explorer = setup_config.file_explorer or "netrw" -- netrw by default
     config.file_explorer_config = setup_config.file_explorer_config
-        or _filex.create_config(config.file_explorer)
+    or Filex.create_config(config.file_explorer)
 
     -- If file_explorer_config is not valid use netrw as fallback
-    if not _filex.check_config(config.file_explorer_config) then
-        config.file_explorer_config = _filex.create_config "netrw"
+    if not Filex.check_config(config.file_explorer_config) then
+        config.file_explorer_config = Filex.create_config "netrw"
     end
 end
 
-return M
+return {
+    setup = M.setup,
+    whaler = M.whaler,
+    get_state = M.get_state,
+    switch = M.switch,
+    select = M.select
+}
