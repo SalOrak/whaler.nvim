@@ -1,14 +1,5 @@
-local telescope = require'whaler.pickers.telescope'
-local vanilla = require'whaler.pickers.vanilla'
-local fzf_lua = require'whaler.pickers.fzf_lua'
-
 local M = {}
 
-local pickers = {
-    telescope = telescope,
-    vanilla = vanilla,
-    fzf_lua = fzf_lua,
-}
 
 
 --- Returns the picker function based on a name
@@ -17,6 +8,11 @@ local pickers = {
     ---@param dirs table Projects and its aliases
     ---@param opts table Configuration options
 M.get_picker = function(picker)
+    local pickers = {
+        telescope = require'whaler.pickers._telescope',
+        vanilla = require'whaler.pickers.vanilla',
+        fzf_lua = nil,
+    }
     local p = pickers[picker]
     if p == nil then
         --- TODO: notify an error to the user
@@ -27,4 +23,6 @@ M.get_picker = function(picker)
 end
 
 
-return M
+return {
+    get_picker = M.get_picker
+}

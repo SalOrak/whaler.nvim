@@ -10,7 +10,7 @@ local log = require "plenary.log"
 -- Whaler modules
 local Utils = require "whaler.utils"
 local Filex = require "whaler.file_explorer"
-local Pickers = require'whaler.pickers'
+local Pickers = require "whaler.picker"
 
 -- Whaler
 
@@ -20,7 +20,7 @@ local M = {
     ---@field path string? Path representing the CWD and Whaler project.
     ---@field display string? Display string shown instead of path
     state = {
-        path = vim.loop.cwd(),
+        path = "",
         display = "",
     }
 }
@@ -236,7 +236,7 @@ M.whaler = function(run_opts)
         return
     end
 
-    picker(dirs, run_opts)
+    picker.picker(dirs, run_opts)
 
 end
 
