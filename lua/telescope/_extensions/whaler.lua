@@ -7,6 +7,7 @@ end
 local whaler = require'whaler'
 
 return telescope.register_extension {
+    setup = whaler.setup,
     exports = {
         whaler = whaler.whaler,
         get_state = whaler.get_state,
