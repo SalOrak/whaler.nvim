@@ -15,8 +15,7 @@ local defaults = {
         }
     },
     actions = {
-        ["default"] = {
-            function(selected)
+        ["default"] = function(selected)
                 local dirs_map = State:get().dirs_map
                 local run_opts = State:get().run_opts
 
@@ -24,15 +23,9 @@ local defaults = {
                 local path = dirs_map[selected[1]]
                 local run_opts = run_opts or {}
 
-                -- Whaler allows executing commands after the selection.
-                -- Because fzf_lua does not delete the window *before* caliing
-                -- this function we should force the deletion of the buffer
-                -- manually
-                vim.api.nvim_buf_delete(0, {force = true})
-
                 Whaler.select(path, display, run_opts)
             end
-        }
+        
     },
     fn_format_entry = function(entry)
         if entry.alias then
