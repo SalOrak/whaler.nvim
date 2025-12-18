@@ -7,7 +7,8 @@ local _conf = require("telescope.config").values
 
 -- TODO: Sane config defaults for telescope
 
-local whaler = require'whaler'
+local Whaler = require'whaler'
+local State = require'whaler.state'
 
 local format_entry = function(entry)
     if entry.alias then
@@ -45,7 +46,13 @@ local picker = function(dirs, opts)
                 _actions.close(prompt_bufnr)
                 local selection = _action_state.get_selected_entry()
                 if selection then
-                    whaler.select(selection.path, selection.display,opts)
+
+                    -- Update the state
+                    State:set({
+                        run_opts = opts
+                    })
+
+                    Whaler.select(selection.path, selection.display)
                 end
 
             end)

@@ -11,6 +11,7 @@ local log = require "plenary.log"
 local Utils = require "whaler.utils"
 local Filex = require "whaler.file_explorer"
 local Pickers = require "whaler.picker"
+local State = require'whaler.state'
 
 -- Whaler
 
@@ -178,8 +179,9 @@ end
 --- Common to all pickers. It fires `WhalerPost` user event.
 ---@param path string Path to change to.
 ---@param display string? Display name of the path.
----@param opts table Options table
-M.select = function(path, display, opts)
+M.select = function(path, display)
+
+    local opts = State:get().run_opts or {}
 
     if opts.auto_cwd then
         M.switch(path, display)
