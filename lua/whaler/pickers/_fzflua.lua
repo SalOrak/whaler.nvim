@@ -6,14 +6,6 @@ local Fzf = require'fzf-lua'
 
 local defaults = {
     prompt = "Whaler >> ",
-    previewer = false,
-    header = "",
-    winopts = {
-        border = "none",
-        preview = {
-            horizontal = "right:40%"
-        }
-    },
     actions = {
         ["default"] = function(selected)
                 local dirs_map = State:get().dirs_map
