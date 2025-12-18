@@ -170,7 +170,7 @@ end
 --- Returns the current state values of Whaler. That is, the 
 --- path selected as well as the display name. It may be nil
 ---@return {path: string?, display:string?} table Current state
-M.get_state = function()
+M.current = function()
     return M.state
 end
 
@@ -273,7 +273,7 @@ end
 return {
     setup = M.setup,
     whaler = M.whaler,
-    get_state = M.get_state,
+    current = M.current,
     switch = M.switch,
     select = M.select
 }
