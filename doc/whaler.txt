@@ -123,6 +123,7 @@ whaler = {
                               --          The final command is `Telescope file_browser path=/path/to/dir`.
                               -- By default is " " (space)
     },
+    picker = "telescope"     -- Picker to use. One of 'telescope', 'fzf_lua', 'vanilla'. Defaults to 'telescope' for compatiblity.
     theme = {                -- Telescope theme default Whaler options.
         results_title = false,
         layout_strategy = "center",

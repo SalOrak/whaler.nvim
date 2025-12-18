@@ -36,7 +36,7 @@ local config = {
     file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
     hidden = false, -- Append hidden directories or not. (default false)
 
-    picker = "telescope",
+    picker = "telescope", -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
 
     -- Telescope variables
     -- Theme Options table
