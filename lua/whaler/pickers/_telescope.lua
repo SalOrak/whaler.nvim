@@ -5,11 +5,9 @@ local _themes = require "telescope.themes"
 local _action_state = require "telescope.actions.state"
 local _conf = require("telescope.config").values
 
-local ok, whaler = pcall(require, 'whaler')
-if not ok then
-    vim.notify("Loop? Error importing whaler")
-    return {picker = nil}
-end
+-- TODO: Sane config defaults for telescope
+
+local whaler = require'whaler'
 
 local format_entry = function(entry)
     if entry.alias then
