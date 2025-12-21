@@ -117,6 +117,8 @@ return {
 
 Whaler does not have any **mappings** by default. It is up to you to create any mappings.
 
+You can also call the `Whaler` and `WhalerSwitch` user commands.
+
 In the Telescope configuration file:
 ```lua
 -- Telescope setup()
