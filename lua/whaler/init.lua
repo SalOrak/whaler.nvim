@@ -49,32 +49,7 @@ local config = {
     -- Options to pass to FzfLua directly. See
     -- https://github.com/ibhagwan/fzf-lua?tab=readme-ov-file#customization for
     -- options
-    fzflua_opts= {
-        prompt = "Whaler >> ",
-        actions = {
-            ["default"] = function(selected)
-                local dirs_map = State:get().dirs_map
-
-                local display = selected[1] 
-                local path = dirs_map[selected[1]]
-
-                Whaler.select(path, display)
-            end
-
-        },
-        fn_format_entry = function(entry)
-            if entry.alias then
-                return (
-                    "["
-                    .. entry.alias
-                    .. "] "
-                    .. vim.fn.fnamemodify(entry.path, ":t")
-                )
-            end
-
-            return entry.path
-        end
-    },
+    fzflua_opts= {},
 }
 
 -- Whaler Main functions ---
