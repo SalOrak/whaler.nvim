@@ -5,7 +5,18 @@ local _themes = require "telescope.themes"
 local _action_state = require "telescope.actions.state"
 local _conf = require("telescope.config").values
 
--- TODO: Sane config defaults for telescope
+local defaults = {
+    results_title = false,
+    layout_strategy = "center",
+    previewer = false,
+    layout_config = {
+        --preview_cutoff = 1000,
+        height = 0.3,
+        width = 0.4,
+    },
+    sorting_strategy = "ascending",
+    border = true,
+}
 
 local Whaler = require'whaler'
 local State = require'whaler.state'
@@ -24,9 +35,12 @@ local format_entry = function(entry)
 end
 
 local picker = function(dirs, opts)
-    local telescope_opts = opts.theme or {}
+    local telescope_opts = vim.tbl_deep_extend('force', defaults, opts.telescope_opts or {})
 
-    _pickers .new(telescope_opts, {
+    -- For compatiblity reasons
+    telescope_opts = vim.tbl_deep_extend('force', opts.telescope_opts, opts.theme)
+
+    _pickers.new(telescope_opts, {
         prompt_title = "Whaler",
         finder = _finders.new_table {
             results = dirs,

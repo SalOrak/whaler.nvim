@@ -38,19 +38,42 @@ local config = {
 
     picker = "telescope", -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
 
-    -- Telescope variables
-    -- Theme Options table
-    theme = {
-        results_title = false,
-        layout_strategy = "center",
-        previewer = false,
-        layout_config = {
-            --preview_cutoff = 1000,
-            height = 0.3,
-            width = 0.4,
+    -- Picker optiosn
+    -- Options to pass to Telescope.
+    telescope_opts = { },
+
+    -- For compatiblity you can use `theme` directly
+    -- to modify Telescope theme options. 
+    theme = { },
+
+    -- Options to pass to FzfLua directly. See
+    -- https://github.com/ibhagwan/fzf-lua?tab=readme-ov-file#customization for
+    -- options
+    fzflua_opts= {
+        prompt = "Whaler >> ",
+        actions = {
+            ["default"] = function(selected)
+                local dirs_map = State:get().dirs_map
+
+                local display = selected[1] 
+                local path = dirs_map[selected[1]]
+
+                Whaler.select(path, display)
+            end
+
         },
-        sorting_strategy = "ascending",
-        border = true,
+        fn_format_entry = function(entry)
+            if entry.alias then
+                return (
+                    "["
+                    .. entry.alias
+                    .. "] "
+                    .. vim.fn.fnamemodify(entry.path, ":t")
+                )
+            end
+
+            return entry.path
+        end
     },
 }
 
@@ -175,7 +198,7 @@ M.current = function()
 end
 
 
---- Core functionality used after selecting a project.
+--- Core functionality used after choosing a project from a picker.
 --- Common to all pickers. It fires `WhalerPost` user event.
 ---@param path string Path to change to.
 ---@param display string? Display name of the path.
@@ -221,8 +244,7 @@ end
 M.whaler = function(run_opts)
     local run_opts = vim.tbl_deep_extend("force", config, run_opts or {})
 
-    local dirs = M.dirs(run_opts.directories, run_opts.oneoff_directories)
-    or {}
+    local dirs = M.dirs(run_opts.directories, run_opts.oneoff_directories) or {}
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPre",
@@ -235,7 +257,7 @@ M.whaler = function(run_opts)
 
     if picker == nil then
         --- TODO: Notify an error to the user
-        return
+        picker = Pickers.get_picker("vanilla") -- Fallback picker
     end
 
     picker.picker(dirs, run_opts)
