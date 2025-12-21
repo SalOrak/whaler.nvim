@@ -1,7 +1,8 @@
-whaler-customization	whaler.txt	/*whaler-customization*
+Credits	whaler.txt	/*Credits*
+whaler-api	whaler.txt	/*whaler-api*
 whaler-introduction	whaler.txt	/*whaler-introduction*
 whaler-quickstart	whaler.txt	/*whaler-quickstart*
 whaler-supported-file-explorers	whaler.txt	/*whaler-supported-file-explorers*
-whaler-usage	whaler.txt	/*whaler-usage*
+whaler-supported-pickers	whaler.txt	/*whaler-supported-pickers*
 whaler-user-events	whaler.txt	/*whaler-user-events*
 whaler.txt	whaler.txt	/*whaler.txt*
