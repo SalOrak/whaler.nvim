@@ -38,7 +38,7 @@ local picker = function(dirs, opts)
     local telescope_opts = vim.tbl_deep_extend('force', defaults, opts.telescope_opts or {})
 
     -- For compatiblity reasons
-    telescope_opts = vim.tbl_deep_extend('force', opts.telescope_opts, opts.theme)
+    telescope_opts = vim.tbl_deep_extend('force', telescope_opts, opts.theme or {})
 
     _pickers.new(telescope_opts, {
         prompt_title = "Whaler",
