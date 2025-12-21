@@ -4,53 +4,116 @@
 
 Lost in the ocean of your unordered and unorganized file-explorer looking for that project? Whaler has you covered.
 
-
 ## What is Whaler?
 
-**Whaler** is a [Telescope](https://github.com/nvim-telescope/telescope.nvim) extension to move ~~blazingly~~ fast between directories.
+**Whaler** is a minimalist project / directory navigator. It provides a clean interface to work with projects.
 
 It is based on the concept of [tmux-windowizer](https://github.com/ThePrimeagen/.dotfiles/blob/master/bin/.local/scripts/tmux-windowizer) from [ThePrimeagen](https://github.com/ThePrimeagen) which uses a set of directories and [fzf](https://github.com/junegunn/fzf) to move to another directory in a new tmux session.
 
-**Whaler** offers a fast experience to move between projects without having much hassle.
+**Whaler** offers a fast experience to move between projects without having much hassle, while giving users the ability to customize their experience as much as possible.
 
 ![whaler-example](whaler-example.gif)
 
-`Whaler.nvim` does primarily the following things:
-1. Looks for subdirectories in a set of directories passed as arguments.
-2. Fuzzy finds among the subdirectories.
-3. Once a directory is selected it automatically changes the vim `cwd` to the selected directory. (customizable)
-4. Automatically opens the desired file explorer.  (customizable)
+The gist of `whaler.nvim` is simple:
+1. Set the parent directories where projects live. All the subdirectories will be considered projects for Whaler (`directories`).
+2. If there are single directories you need as projects you can also define them (`oneoff_directories`)
+3. Execute `Whaler` to move between projects!
+4. You can customize Whaler to make it your own project navigator. See [Options](#options) and [API](#api) for advanced usage.
 
 ## Whaler: Table of Contents
 
 - [Getting started](#getting-started)
-- [Usage](#usage)
-- [Customization](#customization)
-- [Use cases](#use-cases)
+- [Installation](#minimal-installation-setup)
+- [Usage](#usage-example)
+- [Options](#options)
+- [User Events](#user-events)
+- [API](#api)
+- [Supported Pickers](#supported-pickers)
 - [Supported File Explorers](#supported-file-explorers)
 - [Related Projects](#related-projects)
 
 ## Getting Started
 
-**Whaler** is a neovim telescope plugin extension.
+**Whaler** is a neovim project / directory navigator.
 
 #### Dependencies
 
-- [Neovim (v0.9.0)](https://github.com/neovim/neovim/releases/tag/v0.9.0)
+- [Neovim >= v0.9.0)](https://github.com/neovim/neovim/releases/tag/v0.9.0)
+
+Optional pickers:
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
+- [FzfLua](https://github.com/nvim-telescope/telescope.nvim)
 
-#### Installation guide
+#### Minimal installation setup
 
-It is recommended to put `whaler` as a Telescope dependency.
+Using `lazy.nvim`:
 
-Using **lazy**:
 ```lua
 return {
-    "SalOrak/whaler"
+    "SalOrak/whaler",
+    opts = {
+        -- Directories to be used as parent directories. Their subdirectories 
+        -- are considered projects for Whaler.
+        directories = {
+            "path/to/parent/project", 
+            { path = "path/to/another/parent/project", alias = "An alias!"}
+        },
+        -- Directories to be directly used as projects. No subdirectory lookup.
+        oneoff_directories = {
+            { path = "~/.local/share/nvim/lazy", alias = "Neovim Installation"}
+            { path = "~/.config/", alias = "Config directory"}
+        },
+
+        -- Picker to use. By default uses `telescope` for compatibility reasons.
+        -- Options are 'telescope', 'fzf-lua' and 'vanilla' (uses `vim.ui.input`).
+        picker = "telescope"
+    },
 }
 ```
 
-## Usage
+
+Or you can also set up `whaler.nvim` as a `Telescope` extension.
+```lua
+return {
+	{
+        "nvim-telescope/telescope.nvim",
+		dependencies = {
+            "salorak/whaler.nvim", -- Make sure to add `whaler` as a dependency.
+			"nvim-lua/plenary.nvim"
+        }, 
+        config = function()
+            local t = require("telescope")
+
+            t.setup({
+                --- ... your telescope configuration .. ---
+                extensions = {
+                    whaler = {
+                        -- Directories to be used as parent directories. Their subdirectories 
+                        -- are considered projects for Whaler.
+                        directories = {
+                            "path/to/parent/project", 
+                            { path = "path/to/another/parent/project", alias = "An alias!"}
+                        },
+                        -- Directories to be directly used as projects. No subdirectory lookup.
+                        oneoff_directories = {
+                            { path = "~/.local/share/nvim/lazy", alias = "Neovim Installation"}
+                            { path = "~/.config/", alias = "Config directory"}
+                        },
+
+                        -- Picker to use. By default uses `telescope` for compatibility reasons.
+                        -- Options are 'telescope', 'fzf-lua' and 'vanilla' (uses `vim.ui.input`).
+                        picker = "telescope"
+
+                    },
+                }
+            })
+
+            -- Don't forget to load Whaler as an extension!
+            t.load_extension("whaler")
+        end
+```
+
+## Usage example
 
 Whaler does not have any **mappings** by default. It is up to you to create any mappings.
 
@@ -95,51 +158,116 @@ of the full path to each of the project folders.
 
 Now, pressing `<leader>fw` will open a Telescope picker with the subdirectories of the specified directories for you to select.
 
-## Customization
+## Options
 
-Whaler supports a few configuration options.
+`Whaler.nvim` shines the most when your personal touch is added. Below is the default and complete list of configuration options.
 Here is the list of a default configuration:
 ```lua
 whaler = {
-    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, -- Path directories to search. By default the list is empty.
-    oneoff_directories = { "/home/user/.config/nvim" }, -- Path directories to append directly to list of projects. By default is empty. 
-    auto_file_explorer = true, -- Whether to automatically open file explorer. By default is `true`
-    auto_cwd = true, -- Whether to automatically change current working directory. By default is `true`
-    file_explorer = "netrw", -- Automagically creates a configuration for the file explorer of your choice. 
-                             -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
-    file_explorer_config = { -- (OPTIONAL) Map to configure what command is triggered by which plugin. 
-        hidden = false, -- Show hidden directories or not (default false)
-                             -- For basic configuration this is done automatically setting up the file_explorer config.
-        plugin_name = "netrw", -- Plugin. Should be installed.
-        command = "Explorer", -- The plugin command to open.
-                              -- Command must accept a path as parameter
-        prefix_dir = " ",     -- Prefix string to be appended after the command and before the directory path. 
-                              -- Example: In the `telescope_file_browser` the value is ` path=`.
-                              --          The final command is `Telescope file_browser path=/path/to/dir`.
-                              -- By default is " " (space)
+    -- Path directories to search. By default the list is empty.
+    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } }, 
+
+    -- Path directories to append directly to list of projects. By default is empty. 
+    oneoff_directories = { "/home/user/.config/nvim" }, 
+
+    -- Whether to automatically open file explorer. By default is `true`
+    auto_file_explorer = true,
+
+    -- Whether to automatically change current working directory. By default is `true`
+    auto_cwd = true, 
+
+    -- Automagically creates a configuration for the file explorer of your choice. 
+    -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
+    file_explorer = "netrw", 
+
+     -- (OPTIONAL) If you want to fully customize the file explorer configuration,
+     -- below are all the possible options and its default values.
+    file_explorer_config = {
+        -- Show hidden directories or not (default false)
+        hidden = false,
+
+        -- Plugin. Should be installed.
+        plugin_name = "netrw", 
+
+        -- The plugin command to open.
+        -- Command must accept a path as parameter
+        -- Prefix string to be appended after the command and before the directory path. 
+        command = "Explorer", 
+                              
+        -- Example: In the `telescope_file_browser` the value is ` path=`.
+        --          The final command is `Telescope file_browser path=/path/to/dir`.
+        -- By default is " " (space)
+        prefix_dir = " ",     
     },
-    theme = {                -- Telescope theme default Whaler options.
-        results_title = false, -- Either `false` or a string. 
+
+    -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
+    picker = "telescope", 
+
+    -- Picker options
+    -- Options to pass to Telescope. Below is the default.
+    telescope_opts = {
+        results_title = false,
         layout_strategy = "center",
         previewer = false,
         layout_config = {
-            height =  0.3,
-            width = 0.4
+            --preview_cutoff = 1000,
+            height = 0.3,
+            width = 0.4,
         },
         sorting_strategy = "ascending",
         border = true,
-    } 
+    },
+    -- For compatiblity you can also use `theme` directly to modify Telescope. 
+    theme = {},
+ 
+    -- Options to pass to FzfLua directly. See
+    -- https://github.com/ibhagwan/fzf-lua?tab=readme-ov-file#customization for
+    -- options. Below is the defaults.
+    fzflua_opts= {
+        prompt = "Whaler >> ",
+        --- You can modify the actions! Go ahead!
+        actions = {
+            ["default"] = function(selected)
+                    local Whaler = require'whaler'
+                    local dirs_map = State:get().dirs_map
+
+                    local display = selected[1] 
+                    local path = dirs_map[selected[1]]
+
+                    -- For changing projects and
+                    Whaler.select(path, display)
+                end
+
+        },
+        fn_format_entry = function(entry)
+            if entry.alias then
+                return (
+                        "["
+                        .. entry.alias
+                        .. "] "
+                        .. vim.fn.fnamemodify(entry.path, ":t")
+                       )
+            end
+            return entry.path
+            end,
+    },
 }
 ```
-By default `Whaler.nvim` changes the current working directory (*cwd*) to the selected directory AND opens the file explorer (`netrw` by default). 
+By default `Whaler.nvim` changes the current working directory (*cwd*) to the
+selected directory AND opens the file explorer (`netrw` by default). 
 
-Changing `auto_cwd` to `false` will make Whaler to only open the file explorer in the selected directory while maintaining the previous current working directory.
+Changing `auto_cwd` to `false` will make Whaler to only open the file explorer
+in the selected directory while maintaining the previous current working
+directory.
 
-Changing `auto_file_explorer` to `false` while keeping `auto_cwd` enabled will make Whaler to change the current working directory to the selected one but without losing the current file. 
+Changing `auto_file_explorer` to `false` while keeping `auto_cwd` enabled will
+make Whaler to change the current working directory to the selected one but
+without losing the current file. 
 
-**Attention!**: Setting both `auto_cwd` and `auto_file_explorer` to false will make Whaler almost useless as it won't affect to anything.
-
-The `file_explorer` is a shortcut that automatically create a `file_explorer_config` with some basics commands. You can, for example, use the default `netrw` but instead of using `Explore` you can split it using `VExplore`. To do the whaler setup config should be like
+The `file_explorer` is a shortcut that automatically creates a
+`file_explorer_config` with some basics commands. You can, for example, use the
+default `netrw` but instead of using `Explore` you can use `VExplore`. Below the
+configuration changes to use `VExplore` instead of `Explore`.
 ```lua
 whaler = {
     -- Some config here
@@ -151,72 +279,86 @@ whaler = {
 }
 ```
 
-## Use cases
 
-Here I'll show some few use cases for `Whaler.nvim`.
-I'll be adding more but if you have any special use case please let me know and I'll add it here!
+## User Events
 
-#### Split-viewing files from different projects
+`whaler.nvim` automatically fires user events on certain moments. These are the following:
 
-Using the following **setup**:
+- `WhalerPre`: Before executing the picker. It contains the dictionary of
+  projects. It always fires when executing `whaler`.
+- `WhalerPost`: After executing the picker. Contains the current state (path and display). 
+  It only fires when the picker calls `select`. Beware of it if you customize the actions.
+- `WhalerPreSwitch`: Before actually switching projects. Contains the previous
+  and next states (path and display). Fired when calling the `switch` function.
+- `WhalerPostSwitch`: After switching to another project. Fired when calling the
+  `switch` function.
+
+See [API](#api) to know more about using the `Whaler.nvim` API.
+
+## API
+
+The exposed API interface is quite small. There are only 4 functions to use.
+
+1. `whaler(run_opts)`
+
 ```lua
-whaler = {
-    directories = { "~/work" }, 
-    auto_file_explorer = false, -- Do not open file explorer
-    auto_cwd = true, -- But change working directory
-}
+---@param run_opts table General options for runtime mods.
+function whaler(run_opts) end
 ```
-Imaging you are starting a new project called **harp** inside your work path (`"/home/user/work"`). This new project it is similar to another already developed project called **Wheel** but with some fundamental changes. You want to compare the starting files side by side. You can enter the **harp** project and open the starting file. Then execute `Whaler.nvim` with the previous configuration setup and select the **Wheel** project. Notice that nothing really changed. But if you now find files in the current directory using `Telescope find_files` it would display ALL the **Wheel** files available. You can then open the desired file in a vertical split (default to `<C-v>` ) and keep modifying the main file in the **harp** project having the developed main **Wheel** side by side.
+Generates the project list and executes a command on the
+project, usually a file explorer like `netrw` or `oil`. The `run_opts` are
+runtime options. These options are the same ones used during the `setup` section
+and they overwrite them. Allows for fine grain control of `whaler`. You can
+create multiple `whaler` functions that act on different projects lists, execute
+different commands or have different themes. Fires `WhalerPre` after generating
+the projects list. The data object contains a key called `projects` with the
+projects.
 
+2. `switch(path, display)`
 
-#### Multiple Whaler use cases
-
-Let's say you want to search for a file in another directory but don't want to change directories again. Whaler can multiple configuration directly. 
-The setup dictates the defaults of how Whaler would behave if nothing is passed when executed.
 ```lua
--- Setup whaler
-whaler = {
-    directories = { "/home/user/projects", { path = "/home/user/work", alias = "work" } },
-    oneoff_directories = { "/home/user/.config/nvim" }, 
-    auto_file_explorer = true, 
-    auto_cwd = true, 
-    file_explorer = "netrw",
-    theme = {                -- Telescope theme default Whaler options.
-        results_title = false,
-        layout_strategy = "center",
-        previewer = false,
-        layout_config = {
-            height =  0.3,
-            width = 0.4
-        },
-        sorting_strategy = "ascending",
-        border = true,
-    } 
-}
+---@param path string Path to project to switch to.
+---@param display string? Name of the project to switch to. 
+function switch(path, display) end
 ```
 
-Now, we configure the keymaps and add a new keymap to run Whaler and instead of changing directories it will run `Telescope find_file`.
+Switches to another path, changing the current whaler project state. It fires
+the `WhalerPreSwitch` before switching and `WhalerPostSwitch` after switching.
+Use it whenever you want to change to another project directly.
+
+
+3. `select(path, display)`
+
 ```lua
-local keymap = vim.keymap
-keymap.set("n", "<leader>ww", telescope.extensions.whaler.whaler)
-keymap.set("n", "<leader>wn", function()
-        local w = telescope.extensions.whaler.whaler
-        w({
-            auto_file_explorer = true,
-            auto_cwd = false,
-            file_explorer_config = {
-            plugin_name = "telescope",
-            command = "Telescope find_files",
-            prefix_dir = " cwd=",
-            },
-            theme = {
-                previewer = false,
-            },
-        })
-    end)
-        
+---@param path string Path to project to switch to.
+---@param display string? Name of the project to switch to. 
+function select(path, display) end
 ```
-Pressing `<leader>ww` would run Whaler with the setup previously configured, running netrw and changing directories. On the other hand, pressing `<leader>wn` would run Whaler with the new configuration, without changing directories and running `Telescope find_files` in the selected directory.
+Core functionality for all Pickers. It uses the configuration to perform differents tasks: 
+- Calling `switch` if `auto_cwd` is set to true.
+- Executing the file explorer command whenever `auto_file_explorer` is set to
+  true.
+- Finally, firing the `WhalerPost` user event.
+
+
+4. `current()`
+```lua
+---@return {path: string?, display?} table Current state
+function current() end
+```
+
+Returns the current state of Whaler. That is, the project (path) selected as
+well as the display name. They both can be nil. Useful when you want to act on
+the current project.
+
+
+## Supported Pickers
+
+Currently there are only 3 supported pickers:
+- `vanilla`: Does not require any external plugin. It uses `vim.ui.input`. 
+- `telescope`: Uses `Telescope`.
+- `fzf_lua`: Uses `FzfLua`.
+
 
 ## Supported File Explorers
 
@@ -242,10 +384,9 @@ end, { nargs = "?" })
 vim.api.nvim_set_keymap( "n", "<leader>e", ":RnvimrOpen<CR>", { noremap = true, desc = "Ranger File Explorer" })
 ```
 
-
 ## Related projects
 
-There are MANY file explorers in the neovim community. This is NOT a replacement for any of them but an improvement whilst using Telescope.
+There are MANY file explorers in the neovim communniity, check them out! 
 
 But there are many extensions and projects that do relatively the same thing. 
 
