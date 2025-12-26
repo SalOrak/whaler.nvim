@@ -218,6 +218,7 @@ end
 --- entry display name
 M.whaler = function(run_opts)
     local run_opts = vim.tbl_deep_extend("force", config, run_opts or {})
+    run_opts = vim.tbl_deep_extend("keep", run_opts, State:get().run_opts or {})
 
     local dirs = M.dirs(run_opts.directories, run_opts.oneoff_directories) or {}
 
