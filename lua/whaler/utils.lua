@@ -1,5 +1,3 @@
-local _fn = vim.fn
-
 -- Whaler
 local M = {}
 
@@ -37,10 +35,10 @@ end
 M.parse_directory = function(dir)
     dir = dir or ""
     local tmp = ""
-    for i = 1, _fn.strlen(dir) do
+    for i = 1, vim.fn.strlen(dir) do
         local c1 = dir:sub(i, i)
         local c2 = dir:sub(i + 1, i + 1)
-        if not ((c1 == c2 or i == _fn.strlen(dir)) and c1 == "/") then
+        if not ((c1 == c2 or i == vim.fn.strlen(dir)) and c1 == "/") then
             tmp = tmp .. c1
         end
     end
