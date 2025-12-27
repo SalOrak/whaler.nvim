@@ -6,6 +6,11 @@ local M = {}
 
 -- Accepted current configurations
 local FILEX_ENUM = {
+    fzf_lua_explorer = {
+        plugin_name = "fzf-lua-explorer",
+        command = "Explorer",
+        prefix_dir = " ",
+    },
     netrw = {
         plugin_name = "netrw",
         command = "Explore",
