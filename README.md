@@ -51,6 +51,9 @@ Using `lazy.nvim`:
 ```lua
 return {
     "SalOrak/whaler",
+    dependencies = {
+        "nvim-lua/plenary.nvim"
+    },
     opts = {
         -- Directories to be used as parent directories. Their subdirectories 
         -- are considered projects for Whaler.
@@ -65,7 +68,7 @@ return {
         },
 
         -- Picker to use. By default uses `telescope` for compatibility reasons.
-        -- Options are 'telescope', 'fzf-lua' and 'vanilla' (uses `vim.ui.input`).
+        -- Options are 'telescope', 'fzf_lua' and 'vanilla' (uses `vim.ui.input`).
         picker = "telescope"
     },
 }
@@ -101,7 +104,7 @@ return {
                         },
 
                         -- Picker to use. By default uses `telescope` for compatibility reasons.
-                        -- Options are 'telescope', 'fzf-lua' and 'vanilla' (uses `vim.ui.input`).
+                        -- Options are 'telescope', 'fzf_lua' and 'vanilla' (uses `vim.ui.input`).
                         picker = "telescope"
 
                     },
