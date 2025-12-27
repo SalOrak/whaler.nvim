@@ -8,14 +8,25 @@ Path._str = ""
 
 --- Creates a new Path object based on a string path.
 --- The path is normalized with `vim.fs.normalize`.
+--- If the path points to a file, it uses the parent directory instead.
 --- @param str_path string? String path to build the Path.
 --- @return path Path? The Path pointing to a str_path or nil if it does not
 --- exist.
 function Path:new(str_path)
     local norm_path = vim.fs.normalize(str_path)
     local path_stat = vim.uv.fs_stat(norm_path)
-    if not path_stat then
+
+    --- Whitelist node types
+    local accepted_types = { "file", "directory", "link" }
+
+    if not path_stat and vim.tbl_contains(accepted_types, path_stat.type) then
         return nil
+    end
+
+    --- In case the path is a file, get the parent directory.
+    if path_stat.type == "file" then
+        norm_path = vim.fs.dirname(norm_path)
+        P(norm_path)
     end
 
     return setmetatable({
