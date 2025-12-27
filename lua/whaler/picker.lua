@@ -1,5 +1,14 @@
 local M = {}
 
+--- Safe version of require. Returns nil instead of an error when module does not exist.
+--- This is useful for example when telescope is not installed.
+local safe_require = function(module)
+    local success, mod = pcall(require, module)
+
+    if not success then return nil end
+    return mod
+end
+
 --- Returns the picker function based on a name
 ---@param picker string Picker function to use
 ---@return picker function Picker function. Signature is function(dirs,opts).
@@ -8,9 +17,9 @@ local M = {}
 M.get_picker = function(picker)
 
     local pickers = {
-        telescope = require'whaler.pickers._telescope',
-        vanilla = require'whaler.pickers.vanilla',
-        fzf_lua = require'whaler.pickers._fzflua',
+        telescope = safe_require('whaler.pickers._telescope'),
+        vanilla = safe_require('whaler.pickers.vanilla'),
+        fzf_lua = safe_require('whaler.pickers._fzflua'),
         snacks = nil,
         mini = nil,
     }
