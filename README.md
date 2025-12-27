@@ -182,7 +182,7 @@ whaler = {
     auto_cwd = true, 
 
     -- Automagically creates a configuration for the file explorer of your choice. 
-    -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
+    -- Options are "fzf_lua_explorer", "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
     file_explorer = "netrw", 
 
      -- (OPTIONAL) If you want to fully customize the file explorer configuration,
@@ -368,6 +368,7 @@ Currently there are only 3 supported pickers:
 ## Supported File Explorers
 
 Currently the following file explorers are supported out of the box:
+- [fzf-lua-explorer](https://github.com/otavioschwanck/fzf-lua-explorer.nvim). Does not require any configuration.
 - [netrw](): Default and fallback option.
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
 - [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
