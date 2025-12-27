@@ -53,9 +53,6 @@ Using `lazy.nvim`:
 >lua
  return {
     "SalOrak/whaler",
-    dependencies = {
-        "nvim-lua/plenary.nvim"
-    }
     opts = {
         -- Directories to be used as parent directories. Their subdirectories 
         -- are considered projects for Whaler.
@@ -83,7 +80,6 @@ Or you can also set up `whaler.nvim` as a `Telescope` extension.
         "nvim-telescope/telescope.nvim",
             dependencies = {
                 "salorak/whaler.nvim", -- Make sure to add `whaler` as a dependency.
-                    "nvim-lua/plenary.nvim"
             }, 
             config = function()
                 local t = require("telescope")
@@ -188,6 +184,10 @@ Here is the list of a default configuration:
      -- Whether to automatically change current working directory. By default is `true`
      auto_cwd = true, 
  
+     -- Minimum verbosity level to notify when something happens. By default is WARN.
+     -- See `vim.log.levels` 
+     verbosity = vim.log.levels.WARN,
+
      -- Automagically creates a configuration for the file explorer of your choice. 
      -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
      file_explorer = "netrw", 

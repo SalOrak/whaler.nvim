@@ -5,7 +5,7 @@ local _path = require "plenary.path"
 local _scan = require "plenary.scandir"
 
 -- Logging
-local log = require "plenary.log"
+local Logger = require "whaler.logger"
 
 -- Whaler modules
 local Utils = require "whaler.utils"
@@ -35,6 +35,7 @@ local config = {
     file_explorer = "netrw", -- Which file explorer to open (netrw, nvim-tree, neo-tree)
     file_explorer_config = {}, -- Map to configure the map explorer Keys: { plugin-name, command_to_toggle } , -- Does NOT accept netrw
     hidden = false, -- Append hidden directories or not. (default false)
+    verbosity = vim.log.levels.WARN, --- Minimum level of verbosity. See `vim.log.levels`. Default to WARN.
 
     picker = "telescope", -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
 
@@ -58,7 +59,7 @@ M.get_subdir = function(dir)
     local d = _path.new(_path.expand(_path.new(dir)))
 
     if not _path.exists(d) then
-        log.warn("Directory " .. dir .. " is not a valid directory")
+        Logger:warn("Directory " .. dir .. " is not a valid directory")
         return {}
     end
 
@@ -81,7 +82,7 @@ M.get_entries = function(tbl_dir, find_subdirectories)
     -- Get all subdirectories from a table of valid directories
     tbl_dir = tbl_dir or {}
     if tbl_dir == nil then
-        log.error "Table must contain valid directories"
+        Logger:err("Table must contain valid directories")
         return {}
     end
 
@@ -244,6 +245,11 @@ M.setup = function(setup_config)
     if setup_config and setup_config ~= "" then
         config = vim.tbl_deep_extend("force", config, setup_config or {})
     end
+
+
+    --- Log level by default is WARN.
+    config.verbosity = setup_config.verbosity or vim.log.levels.WARN
+    Logger:set_verbosity(config.verbosity)
 
     config.directories = setup_config.directories or {} -- No directories by default
     config.oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default

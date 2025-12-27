@@ -51,9 +51,6 @@ Using `lazy.nvim`:
 ```lua
 return {
     "SalOrak/whaler",
-    dependencies = {
-        "nvim-lua/plenary.nvim"
-    },
     opts = {
         -- Directories to be used as parent directories. Their subdirectories 
         -- are considered projects for Whaler.
@@ -82,7 +79,6 @@ return {
         "nvim-telescope/telescope.nvim",
 		dependencies = {
             "salorak/whaler.nvim", -- Make sure to add `whaler` as a dependency.
-			"nvim-lua/plenary.nvim"
         }, 
         config = function()
             local t = require("telescope")
@@ -122,7 +118,7 @@ Whaler does not have any **mappings** by default. It is up to you to create any 
 
 You can also call the `Whaler` and `WhalerSwitch` user commands.
 
-In the Telescope configuration file:
+In the configuration file:
 ```lua
 -- Telescope setup()
 local telescope = require('telescope')
@@ -180,6 +176,10 @@ whaler = {
 
     -- Whether to automatically change current working directory. By default is `true`
     auto_cwd = true, 
+
+    -- Minimum verbosity level to notify when something happens. By default is WARN.
+    -- See `vim.log.levels` 
+    verbosity = vim.log.levels.WARN,
 
     -- Automagically creates a configuration for the file explorer of your choice. 
     -- Options are "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
