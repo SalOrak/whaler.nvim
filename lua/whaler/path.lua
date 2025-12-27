@@ -19,14 +19,13 @@ function Path:new(str_path)
     --- Whitelist node types
     local accepted_types = { "file", "directory", "link" }
 
-    if not path_stat and vim.tbl_contains(accepted_types, path_stat.type) then
+    if not path_stat and vim.tbl_contains(accepted_types, path_stat._stat.type) then
         return nil
     end
 
     --- In case the path is a file, get the parent directory.
     if path_stat.type == "file" then
         norm_path = vim.fs.dirname(norm_path)
-        P(norm_path)
     end
 
     return setmetatable({
@@ -38,7 +37,7 @@ end
 
 ---@param hidden boolean Whether to add hidden directories or not.
 ---@param follow boolean Whehter to follow symlinks or not.
----@param filter function(path_name) -> boolean Function to filter based on the
+---@param cb_filter function(path_name) -> boolean Function to filter based on the
     --- directory name. Return true to add the directory, false otherwise
 function Path:scan(hidden, follow, cb_filter)
 

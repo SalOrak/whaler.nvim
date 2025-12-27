@@ -1,8 +1,5 @@
--- Telescope modules
-
--- Plenary helpers
-local _path = require "plenary.path"
-local _scan = require "plenary.scandir"
+-- Path
+local Path = require "whaler.path"
 
 -- Logging
 local Logger = require "whaler.logger"
@@ -37,6 +34,12 @@ local config = {
     hidden = false, -- Append hidden directories or not. (default false)
     verbosity = vim.log.levels.WARN, --- Minimum level of verbosity. See `vim.log.levels`. Default to WARN.
 
+    --- Whether to follow symlinks when scanning for subdirectories.
+    follow = true,
+
+    --- Function to filter projects based on their name when scanning.
+    filter_project = function(path_name) return true end,
+
     picker = "telescope", -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
 
     -- Picker optiosn
@@ -56,18 +59,17 @@ local config = {
 -- Whaler Main functions ---
 M.get_subdir = function(dir)
     dir = Utils.parse_directory(dir)
-    local d = _path.new(_path.expand(_path.new(dir)))
+    local d = Path:new(dir)
 
-    if not _path.exists(d) then
+    if not d then
         Logger:warn("Directory " .. dir .. " is not a valid directory")
         return {}
     end
 
-    local tbl_sub = _scan.scan_dir(_path.expand(d), {
-        hidden = config.hidden,
-        depth = 1,
-        only_dirs = true,
-    })
+    local tbl_sub = d:scan(
+        config.hidden,
+        config.follow,
+        config.filter_project)
 
     local tbl_dir = {}
     for _, v in pairs(tbl_sub) do
@@ -250,6 +252,10 @@ M.setup = function(setup_config)
     --- Log level by default is WARN.
     config.verbosity = setup_config.verbosity or vim.log.levels.WARN
     Logger:set_verbosity(config.verbosity)
+
+
+    --- Filter project. Accept everything by default
+    config.filter_project = setup_config.filter_project or function(path_name) return true end
 
     config.directories = setup_config.directories or {} -- No directories by default
     config.oneoff_directories = setup_config.oneoff_directories or {} -- No directories by default
