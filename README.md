@@ -368,7 +368,7 @@ Currently there are only 3 supported pickers:
 ## Supported File Explorers
 
 Currently the following file explorers are supported out of the box:
-- [fzf-lua-explorer](https://github.com/otavioschwanck/fzf-lua-explorer.nvim)
+- [fzf-lua-explorer](https://github.com/otavioschwanck/fzf-lua-explorer.nvim). Does not require any configuration.
 - [netrw](): Default and fallback option.
 - [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim). Does not require any configuration.
 - [Oil](https://github.com/stevearc/oil.nvim). Does not require any configuration.
