@@ -57,29 +57,14 @@ local config = {
 }
 
 -- Whaler Main functions ---
-M.get_subdir = function(dir)
-    dir = Utils.parse_directory(dir)
-    local d = Path:new(dir)
 
-    if not d then
-        Logger:warn("Directory " .. dir .. " is not a valid directory")
-        return {}
-    end
-
-    local tbl_sub = d:scan(
-        config.hidden,
-        config.follow,
-        config.filter_project)
-
-    local tbl_dir = {}
-    for _, v in pairs(tbl_sub) do
-        tbl_dir[#tbl_dir + 1] = v
-    end
-
-    return tbl_dir
-end
-
-M.get_entries = function(tbl_dir, find_subdirectories)
+--- Ensambles all the projects directory into a table containing the path and
+--- alias.
+--- @param tbl_dir table|string[] Contains the directories to search in or to
+--- convert into a table of path and its alias (display name).
+--- @param opts { is_oneoff: boolean?, hidden: boolean?, follow: boolean?, project_filter: function }
+--- @return projects {{path: string, alias: string?}}
+M.get_entries = function(tbl_dir, opts)
     local subdirs
     -- Get all subdirectories from a table of valid directories
     tbl_dir = tbl_dir or {}
@@ -90,44 +75,68 @@ M.get_entries = function(tbl_dir, find_subdirectories)
 
     local tbl_entries = {}
     for _, dir in ipairs(tbl_dir) do
-        local dir_tbl
+        local dir_tbl = dir
+
         -- If we passed a string we assume there is no alias and turn it into a
         -- directory specification to make the code more uniform
         if type(dir) == "string" then
             dir_tbl = { path = dir, alias = nil }
-        else
-            dir_tbl = dir
         end
 
-        if find_subdirectories then
-            subdirs = M.get_subdir(dir_tbl.path)
-        else
-            subdirs = { dir_tbl.path }
+        local path = Path:new(dir_tbl.path)
+
+        if not path then
+            local path_type = (opts.is_oneoff and "Oneoff") or "Parent"
+            local msg = string.format("%s directory %s is not a valid path.", path_type, dir_tbl.path)
+            Logger:warn(msg)
+        else 
+            if opts.is_oneoff then
+                --- oneoff means the directory itself is the project.
+                subdirs = { dir_tbl.path }
+            else
+                --- else we generate the directory list
+                subdirs = path:scan(opts.hidden, opts.follow, opts.filter_project) 
+            end
+
+            for _, v in ipairs(subdirs) do
+                tbl_entries[#tbl_entries + 1] = { path = v, alias = dir_tbl.alias }
+            end
         end
 
-        for _, v in ipairs(subdirs) do
-            tbl_entries[#tbl_entries + 1] = { path = v, alias = dir_tbl.alias }
-        end
     end
 
     return tbl_entries
 end
 
-M.dirs = function(directories, oneoff_directories)
-    local hd = directories or {}
-    local oneoff_hd = oneoff_directories or {}
+--- Calls the generation of project directory list and merges
+--- the returning result.
+--- @param run_opts table Runtime options. Same as config options.
+--- @return project_dirs table Table containing all the projects directories and
+--- its alias names.
+M.gen_projects = function(run_opts)
+    local parent_dirs = run_opts.directories or {}
+    local oneoff_projects = run_opts.oneoff_directories or {}
 
-    local subdirs = M.get_entries(hd, true) or {}
-    local oneoff_dirs = M.get_entries(oneoff_hd, false) or {}
+    local opts = {
+        is_oneoff = false,
+        hidden = run_opts.hidden,
+        follow = run_opts.follow,
+        filter_project = run_opts.filter_project
+    }
+
+    local projects_dirs = M.get_entries(parent_dirs, opts) or {}
+
+    opts.is_oneoff = true
+    local oneoff_dirs = M.get_entries(oneoff_projects, opts) or {}
 
     -- merge oneoff into subdirs
     for _, oneoff in ipairs(oneoff_dirs) do
         local parsed_oneoff = Utils.parse_directory(oneoff.path) -- Remove any / at the end.
         oneoff.path = parsed_oneoff
-        subdirs[#subdirs + 1] = oneoff
+        projects_dirs[#projects_dirs + 1] = oneoff
     end
 
-    return subdirs
+    return projects_dirs
 end
 
 --- Switches to another path, changing the current whaler state
@@ -135,25 +144,30 @@ end
 --- First event just before changing to the new path it fires the `WhalerPreSwitch` 
 --- event whose data include the current state and the new one.
 --- After changing to the new path it fires `WhalerPostSwitch` event.
----@param path string? String path representing the new path to switch to
+---@param str_path string? String path representing the new path to switch to
 ---@param display string? Display string to show instead of the path. If nil it
 ---generates it from the `path`
-M.switch = function(path, display) 
+M.switch = function(str_path, display) 
     vim.api.nvim_exec_autocmds('User', {
         pattern = 'WhalerPreSwitch',
         data = {
             from = M.state,
             to = {
-                path = path,
+                path = str_path,
                 display = display,
             }
         }
     })
 
-    -- TODO: Manage errors in case path does not exist.
-    vim.api.nvim_set_current_dir(path)
+    local ok = Path:new(str_path)
+    if not ok then
+        Logger:error(string.format("Can't switch to path %s because it is not a valid path.", str_path))
+        return nil
+    end
 
-    M.state.path = path
+    vim.api.nvim_set_current_dir(str_path)
+
+    M.state.path = str_path
     -- TODO: Create a display based on the path in case it is nil. Maybe accept
     -- a user input function to create the display based on the path.
     M.state.display = display
@@ -161,10 +175,12 @@ M.switch = function(path, display)
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPostSwitch",
         data = {
-            path = path,
+            path = str_path,
             display = display,
         }
     })
+
+    return true
 
 end
 
@@ -185,18 +201,21 @@ M.select = function(path, display)
     local opts = State:get().run_opts or {}
 
     if opts.auto_cwd then
-        M.switch(path, display)
+        if not M.switch(path, display) then
+            return
+        end
     end
 
-    -- File explorer / Command to be executed
-    local cmd = vim.api.nvim_parse_cmd(
-        opts.file_explorer_config["command"]
-        .. opts.file_explorer_config["prefix_dir"]
-        .. path,
-        {}
-    )
+    local cmd = nil
 
     if opts.auto_file_explorer then
+        -- File explorer / Command to be executed
+        cmd = vim.api.nvim_parse_cmd(
+            opts.file_explorer_config["command"]
+            .. opts.file_explorer_config["prefix_dir"]
+            .. path,
+            {}
+        )
         -- Execute command
         vim.api.nvim_cmd(cmd, {})
     end
@@ -223,7 +242,7 @@ M.whaler = function(run_opts)
     local run_opts = vim.tbl_deep_extend("force", config, run_opts or {})
     run_opts = vim.tbl_deep_extend("keep", run_opts, State:get().run_opts or {})
 
-    local dirs = M.dirs(run_opts.directories, run_opts.oneoff_directories) or {}
+    local dirs = M.gen_projects(run_opts) or {}
 
     vim.api.nvim_exec_autocmds("User", {
         pattern = "WhalerPre",
@@ -278,6 +297,9 @@ M.setup = function(setup_config)
     if not Filex.check_config(config.file_explorer_config) then
         config.file_explorer_config = Filex.create_config "netrw"
     end
+
+    --- Set the config value as 'run_opts'
+    State:set({run_opts = config})
 end
 
 return {

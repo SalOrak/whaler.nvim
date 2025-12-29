@@ -1,3 +1,4 @@
+local Logger = require'whaler.logger'
 
 ---@class Path
 local Path = {}
@@ -9,27 +10,47 @@ Path._str = ""
 --- Creates a new Path object based on a string path.
 --- The path is normalized with `vim.fs.normalize`.
 --- If the path points to a file, it uses the parent directory instead.
+---
+--- If the path points to a link, it uses the file/directory that points to.
+--- For example, if I have dir A in /tmp/bin/A, and a symlink in /home/ada/c
+--- that points to A. If I pass the path to c it will return the directories
+--- inside the path of A, i.e. all directories inside /tmp/bin/A/ 
+---
 --- @param str_path string? String path to build the Path.
 --- @return path Path? The Path pointing to a str_path or nil if it does not
 --- exist.
 function Path:new(str_path)
+
     local norm_path = vim.fs.normalize(str_path)
-    local path_stat = vim.uv.fs_stat(norm_path)
+    local real_path = vim.uv.fs_realpath(norm_path) -- Always resolve symlinks
+
+    --- `real_path` is nil means the path does not exist.
+    if not real_path then 
+        return nil 
+    end
+
+    local path_stat = vim.uv.fs_stat(real_path)
 
     --- Whitelist node types
-    local accepted_types = { "file", "directory", "link" }
+    local accepted_types = { "file", "directory"}
 
-    if not path_stat and vim.tbl_contains(accepted_types, path_stat._stat.type) then
-        return nil
+    --- `path_stat` is nil means the path does not exist 
+    ---   AND 
+    --- Path `type` should point to a valid type (file or dir)
+    if not path_stat or 
+        (path_stat and not vim.tbl_contains(accepted_types, path_stat.type))
+        then
+            return nil
     end
 
     --- In case the path is a file, get the parent directory.
     if path_stat.type == "file" then
-        norm_path = vim.fs.dirname(norm_path)
+        real_path = vim.fs.dirname(real_path)
     end
 
+
     return setmetatable({
-        _str =  norm_path,
+        _str =  real_path,
         _stat = path_stat,
     }, self)
 end
@@ -37,9 +58,9 @@ end
 
 ---@param hidden boolean Whether to add hidden directories or not.
 ---@param follow boolean Whehter to follow symlinks or not.
----@param cb_filter function(path_name) -> boolean Function to filter based on the
+---@param filter_project function(path_name) -> boolean Function to filter based on the
     --- directory name. Return true to add the directory, false otherwise
-function Path:scan(hidden, follow, cb_filter)
+function Path:scan(hidden, follow, filter_project)
 
     local iter = vim.fs.dir(self._str, {
         depth = 1,
@@ -62,7 +83,7 @@ function Path:scan(hidden, follow, cb_filter)
             end
         end
 
-        if should_insert and cb_filter(path) then
+        if should_insert and filter_project(path) then
             table.insert(dirs, abs_path) 
         end
     end
