@@ -5,7 +5,9 @@ State.data = {}
 
 local state = {}
 
-function State:new()
+--- Singleton class. Meant to be used internally.
+--- @return state State State instance
+function State:_get_instance()
     if getmetatable(state) == nil then
         self = setmetatable({ data = {
             dirs_map = {}, run_opts = {}
@@ -17,7 +19,6 @@ end
 
 function State:get()
     return self.data
-
 end
 
 function State:set(new_state)
@@ -26,6 +27,6 @@ function State:set(new_state)
     end
 end
 
-state = State:new()
+state = State:_get_instance()
 
 return state
