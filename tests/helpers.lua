@@ -5,7 +5,7 @@ Helpers.directory_hierarchy = {
         dotfiles = {
             neovim = {},
             emacs = {},
-            alacrrity = {},
+            alacritty = {},
             aerc = {},
             tmux = {}
         },
