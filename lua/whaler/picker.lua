@@ -1,5 +1,7 @@
 local M = {}
 
+local Logger = require'whaler.logger'
+
 --- Safe version of require. Returns nil instead of an error when module does not exist.
 --- This is useful for example when telescope is not installed.
 local safe_require = function(module)
@@ -26,7 +28,10 @@ M.get_picker = function(picker)
 
     local p = pickers[picker]
     if p == nil then
-        --- TODO: notify an error to the user
+        local available_pickers = vim.fn.join(vim.tbl_keys(pickers), ', ')
+        Logger:warn(string.format(
+            "Picker %s is not an option. Choose one from %s.", 
+            picker, available_pickers ))
         return nil
     end
 
