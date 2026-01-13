@@ -71,6 +71,7 @@ function Path:scan(hidden, follow, filter_project)
     for path,ptype in iter do
         local abs_path = string.format("%s/%s", self._str, path)
         local should_insert = false
+		local is_hidden = string.match(path, "^%.") ~= nil
         if ptype == "directory" then
             should_insert = true
         elseif ptype == "link" then
@@ -83,8 +84,10 @@ function Path:scan(hidden, follow, filter_project)
             end
         end
 
-        if should_insert and filter_project(path) then
-            table.insert(dirs, abs_path) 
+        if should_insert and filter_project(path) 
+			and (not is_hidden or hidden) 
+			then
+				table.insert(dirs, abs_path) 
         end
     end
 

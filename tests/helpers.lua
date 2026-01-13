@@ -55,7 +55,8 @@ Helpers.remove_directory_hierarchy = function(child, path, hierarchy)
         return 
     end
     for k,v in pairs(hierarchy) do
-        local parent_path = string.format("%s/%s", path,k)
+		local as_path = k:gsub("^_", ".") -- Replace _ at the beggining by .
+        local parent_path = string.format("%s/%s", path, as_path)
         if v then
             Helpers.remove_directory_hierarchy(nil, parent_path, v)
         end

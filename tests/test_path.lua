@@ -93,6 +93,9 @@ T['parametrize']['scan_dirs(hidden=true,follow=false, filter=nil)'] = function(k
 
 	for k,v in pairs(expected) do
 		local expected_path = string.format("%s/%s/%s", tmp_path, keypath, v)
+		if not vim.tbl_contains(scan_dirs, expected_path) then
+			vim.print(scan_dirs)
+		end
 		eq(vim.tbl_contains(scan_dirs, expected_path),true)
 	end
 end
