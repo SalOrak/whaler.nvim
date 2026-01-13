@@ -191,12 +191,13 @@ Here is the list of a default configuration:
      -- Automagically creates a configuration for the file explorer of your choice. 
      -- Options are "fzf_lua_explorer", "netrw"(default), "nvimtree", "neotree", "oil", "telescope_file_browser", "rnvimr"
      file_explorer = "netrw", 
+
+     -- Show hidden directories or not (default false)
+     hidden = false,
  
       -- (OPTIONAL) If you want to fully customize the file explorer configuration,
       -- below are all the possible options and its default values.
      file_explorer_config = {
-         -- Show hidden directories or not (default false)
-         hidden = false,
  
          -- Plugin. Should be installed.
          plugin_name = "netrw", 
