@@ -60,7 +60,7 @@ return {
         },
         -- Directories to be directly used as projects. No subdirectory lookup.
         oneoff_directories = {
-            { path = "~/.local/share/nvim/lazy", alias = "Neovim Installation"}
+            { path = "~/.local/share/nvim/lazy", alias = "Neovim Installation"},
             { path = "~/.config/", alias = "Config directory"}
         },
 
