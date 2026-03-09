@@ -89,13 +89,13 @@ M.get_entries = function(tbl_dir, opts)
             local path_type = (opts.is_oneoff and "Oneoff") or "Parent"
             local msg = string.format("%s directory %s is not a valid path.", path_type, dir_tbl.path)
             Logger:warn(msg)
-        else 
+        else
             if opts.is_oneoff then
                 --- oneoff means the directory itself is the project.
                 subdirs = { dir_tbl.path }
             else
                 --- else we generate the directory list
-                subdirs = path:scan(opts.hidden, opts.follow, opts.filter_project) 
+                subdirs = path:scan(opts.hidden, opts.follow, opts.filter_project)
             end
 
             for _, v in ipairs(subdirs) do
@@ -147,7 +147,7 @@ end
 ---@param str_path string? String path representing the new path to switch to
 ---@param display string? Display string to show instead of the path. If nil it
 ---generates it from the `path`
-M.switch = function(str_path, display) 
+M.switch = function(str_path, display)
     vim.api.nvim_exec_autocmds('User', {
         pattern = 'WhalerPreSwitch',
         data = {
@@ -209,6 +209,8 @@ M.select = function(path, display)
     local cmd = nil
 
     if opts.auto_file_explorer then
+		-- Fix spaces in path
+		path = vim.fn.fnameescape(path)
         -- File explorer / Command to be executed
         cmd = vim.api.nvim_parse_cmd(
             opts.file_explorer_config["command"]
