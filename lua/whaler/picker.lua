@@ -22,7 +22,7 @@ M.get_picker = function(picker)
         telescope = safe_require('whaler.pickers._telescope'),
         vanilla = safe_require('whaler.pickers.vanilla'),
         fzf_lua = safe_require('whaler.pickers._fzflua'),
-        snacks = nil,
+        snacks = safe_require('whaler.pickers._snacks'),
         mini = nil,
     }
 

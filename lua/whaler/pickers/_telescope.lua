@@ -6,6 +6,7 @@ local _action_state = require "telescope.actions.state"
 local _conf = require("telescope.config").values
 
 local defaults = {
+	prompt = "Whaler >>",
     results_title = false,
     layout_strategy = "center",
     previewer = false,
@@ -41,7 +42,7 @@ local picker = function(dirs, opts)
     telescope_opts = vim.tbl_deep_extend('force', telescope_opts, opts.theme or {})
 
     _pickers.new(telescope_opts, {
-        prompt_title = "Whaler",
+        prompt_title = telescope_opts.prompt,
         finder = _finders.new_table {
             results = dirs,
             entry_maker = function(entry)
