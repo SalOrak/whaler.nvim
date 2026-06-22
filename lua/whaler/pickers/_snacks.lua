@@ -32,15 +32,6 @@ local defaults = {
 	},
 }
 
-local format = function(entry, _)
-	local ret = {}
-	local fmt_entry = defaults.format_entry(entry)
-	if fmt_entry.alias then
-		table.insert(ret, { fmt_entry.alias .. " ", "SnacksPickerLabel"})
-	end
-	table.insert(ret, { fmt_entry.pathname, "SnacksPickerText"})
-	return ret
-end
 
 -- This is a custom source picker in snacks
 local picker = function(dirs, run_opts)
@@ -49,7 +40,7 @@ local picker = function(dirs, run_opts)
 
 	local snacks_dirs = {}
 
-	for key,entry in pairs(dirs) do
+	for _,entry in pairs(dirs) do
 		local fmtd = snacks_opts.format_entry(entry)
 		local text = fmtd.pathname
 		if fmtd.alias then
@@ -72,7 +63,15 @@ local picker = function(dirs, run_opts)
 		live = false,
 		items = snacks_dirs,
 		preview = snacks_opts.preview,
-		format = format,
+		format = function(entry, _)
+			local ret = {}
+			local fmt_entry = snacks_opts.format_entry(entry)
+			if fmt_entry.alias then
+				table.insert(ret, { fmt_entry.alias .. " ", "SnacksPickerLabel"})
+			end
+			table.insert(ret, { fmt_entry.pathname, "SnacksPickerText"})
+			return ret
+		end,
 		win = {
 			input = {
 				keys = snacks_opts.keys
