@@ -42,7 +42,8 @@ The gist of `whaler.nvim` is simple:
 
 Optional pickers:
 - [Telescope](https://github.com/nvim-telescope/telescope.nvim)
-- [FzfLua](https://github.com/nvim-telescope/telescope.nvim)
+- [FzfLua](https://github.com/ibhagwan/fzf-lua)
+- [Snacks](https://github.com/folke/snacks.nvim)
 
 #### Minimal installation setup
 
@@ -65,7 +66,7 @@ return {
         },
 
         -- Picker to use. By default uses `telescope` for compatibility reasons.
-        -- Options are 'telescope', 'fzf_lua' and 'vanilla' (uses `vim.ui.input`).
+        -- Options are 'telescope', 'fzf_lua', 'snacks' and 'vanilla' (uses `vim.ui.input`).
         picker = "telescope"
     },
 }
@@ -100,7 +101,7 @@ return {
                         },
 
                         -- Picker to use. By default uses `telescope` for compatibility reasons.
-                        -- Options are 'telescope', 'fzf_lua' and 'vanilla' (uses `vim.ui.input`).
+                        -- Options are 'telescope', 'fzf_lua', 'snacks'  and 'vanilla' (uses `vim.ui.input`).
                         picker = "telescope"
 
                     },
@@ -206,7 +207,7 @@ whaler = {
         prefix_dir = " ",     
     },
 
-    -- Which picker to use. One of 'telescope', 'fzf_lua' or 'vanilla'. Default to 'telescope'
+    -- Which picker to use. One of 'telescope', 'fzf_lua', 'snacks'  or 'vanilla'. Default to 'telescope'
     picker = "telescope", 
 
     -- Picker options
@@ -257,6 +258,37 @@ whaler = {
             return entry.path
             end,
     },
+
+    snacks_opts = {
+        title = "Whaler",
+        prompt = "Whaler >> ",
+        preview = "file",
+        format_entry = function(entry)
+            if entry.alias then
+                return {
+                    alias = "[" .. entry.alias .. "]", 
+                    pathname = vim.fn.fnamemodify(entry.path, ":t"),
+                }
+            else
+                return {
+                    alias = nil,
+                    pathname = entry.path
+                }
+        end
+            end,
+            keys = {
+                ["CR"] = "confirm",
+                ["<C-y>"] = { "confirm", mode = {"i", "n"}},
+                ["<C-n>"] = { "list_down", mode = {"i", "n"}},
+                ["<C-p>"] = { "list_up", mode = {"i", "n"}},
+                ["<C-d>"] = { "list_scroll_down", mode = {"i", "n"}},
+                ["<C-u>"] = { "list_scroll_up", mode = {"i", "n"}},
+                ["gg"] = { "list_scroll_top", mode = {"n"}},
+                ["G"] = { "list_scroll_bottom", mode = {"n"}},
+                ["<M-p>"] = { "toggle_preview", mode = {"i", "n"}},
+            },
+    },
+
 }
 ```
 By default `Whaler.nvim` changes the current working directory (*cwd*) to the
@@ -364,6 +396,7 @@ Currently there are only 3 supported pickers:
 - `vanilla`: Does not require any external plugin. It uses `vim.ui.input`. 
 - `telescope`: Uses `Telescope`.
 - `fzf_lua`: Uses `FzfLua`.
+- `snacks`: Uses `Snacks Picker`.
 
 
 ## Supported File Explorers
